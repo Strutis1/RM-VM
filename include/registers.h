@@ -9,7 +9,6 @@
 typedef struct {
     int IC;     // Instruction Counter
     int R;      // General purpose register
-    int SP;     // Stack Pointer
     int SF;     // Status Flags (Zero, Negative, Overflow bits)
     int MODE;   // Mode: USER or SUPERVISOR
     int PI;     // Program Interrupt
@@ -29,7 +28,6 @@ typedef struct {
     int SF;     // Status Flags
     int DS;     // Data Segment
     int CS;     // Code Segment
-    int SS;     // Stack Segment
     int PTR;    // Page Table Register (mapped to RM)
 } VM_CPU;
 
