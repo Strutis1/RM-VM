@@ -1,10 +1,16 @@
 #include "../../include/memory.h"
+#include "../../include/common.h"
 
 
 
-void write(Memory *mem, int address, int value){
+
+void init(){
+    
+}
+
+void write(Memory *mem, uint16_t address, uint16_t value){
     //check mode here
-    if(address > MEMORY_SIZE || address < 0){
+    if(address >= MEMORY_SIZE || address < 0){
         //call interrupt maybe
     }else{
         mem->cells[address] = value;
@@ -12,7 +18,7 @@ void write(Memory *mem, int address, int value){
 }
 
 
-int read(Memory *mem, int address){
+int read(Memory *mem, uint16_t address){
     //check mode here
     if(address > MEMORY_SIZE || address < 0){
         //call interrupt maybe

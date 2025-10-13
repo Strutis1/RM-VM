@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdint.h>
 
 #define MEMORY_SIZE        256
 #define PAGE_SIZE          16
@@ -9,7 +10,7 @@
 
 
 typedef struct{
-    int cells[MEMORY_SIZE];
+    uint16_t cells[MEMORY_SIZE];
 } Memory;
 
 
@@ -17,5 +18,5 @@ extern Memory physicalMemory;
 
 
 
-void write(Memory *mem, int address, int value);
-int read(Memory *mem, int address);
+void write(Memory *mem, uint16_t address, uint16_t value);
+uint16_t read(Memory *mem, uint16_t address);

@@ -2,32 +2,31 @@
 
 #include "common.h"
 
-// ============================================================
-// Real Machine CPU registers
-// ============================================================
 
 typedef struct {
-    int IC;     // Instruction Counter
-    int R;      // General purpose register
-    int SF;     // Status Flags (Zero, Negative, Overflow bits)
-    int MODE;   // Mode: USER or SUPERVISOR
-    int PI;     // Program Interrupt
-    int SI;     // System Interrupt
-    int TI;     // Timer Interrupt
-    int PTR;    // Page Table Register
+    uint16_t IC;
+    uint16_t R[REG_COUNT];  
+    uint16_t SF;
+    uint16_t MODE;
+    uint16_t PI;
+    uint16_t SI;
+    uint16_t TI;
+    uint16_t PTR;
 } CPU;
 
-// ============================================================
-// Virtual Machine registers
-// ============================================================
+extern CPU realCPU;
+
+
 
 typedef struct {
-    int RAX;    // General-purpose register A
-    int RBX;    // General-purpose register B
-    int PC;     // Program Counter
-    int SF;     // Status Flags
-    int DS;     // Data Segment
-    int CS;     // Code Segment
-    int PTR;    // Page Table Register (mapped to RM)
+    uint16_t R[REG_COUNT];   
+    uint16_t PC;     
+    uint16_t SF;     
+    uint16_t DS;    
+    uint16_t CS;     
+    uint16_t PTR;    
 } VM_CPU;
+
+
+extern VM_CPU vmCPU;//one for now
 

@@ -1,5 +1,5 @@
 #pragma once
-
+#include <stdint.h>
 
 
 
@@ -21,4 +21,15 @@
 
 #define OP_NOP      0x0F   // no operation (optional placeholder)
 #define OP_SYS      0x10   // reserved for system call / interrupt
+
+
+
+typedef struct {
+    uint8_t opcode;
+    uint8_t reg;
+    uint8_t mode;
+    uint16_t operand;
+    uint8_t length;
+    uint16_t raw;
+}Instruction;
 
