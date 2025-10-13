@@ -2,9 +2,8 @@
 
 
 #include <stdint.h>
+#include "common.h"
 
-#define DISK_SECTOR_SIZE 16
-#define DISK_SECTOR_COUNT 64
 
 typedef struct {
     uint8_t id;

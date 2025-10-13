@@ -4,8 +4,10 @@
 
 
 
-void init(){
-    
+void initMemory(Memory *mem){
+    for (int i = 0; i < MEMORY_SIZE; i++) {
+        mem->cells[i] = 0;
+    }
 }
 
 void write(Memory *mem, uint16_t address, uint16_t value){
