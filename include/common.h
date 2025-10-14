@@ -1,14 +1,20 @@
 #pragma once
+
+
+
 // General configuration
 #define WORD_SIZE          4
 #define REG_COUNT          8
 
 
 // Memory
-#define MEMORY_SIZE        256
+#define MEMORY_SIZE        512
 #define PAGE_SIZE          16
 #define PAGE_COUNT         (MEMORY_SIZE / PAGE_SIZE)
-#define VM_MEMORY_SIZE     128
+#define USER_MEMORY_START 0
+#define USER_MEMORY_END 255
+#define SUPERVISOR_MEMORY_START 256
+#define SUPERVISOR_MEMORY_END 511
 #define PTR_START          240 //for now
 
 // Disk
@@ -26,3 +32,11 @@
 // Status
 #define SUCCESS  0
 #define FAILURE  1
+
+// Flags
+#define FLAG_ZERO      0x1
+#define FLAG_NEGATIVE  0x2
+#define FLAG_OVERFLOW  0x4
+#define FLAG_CARRY     0x8
+
+

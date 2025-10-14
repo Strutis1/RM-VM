@@ -8,4 +8,6 @@
 #include <stdbool.h>
 
 
+void raiseProgramInterrupt(uint16_t code);
+
 void execCycle();

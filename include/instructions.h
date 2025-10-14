@@ -25,11 +25,13 @@
 
 
 typedef struct {
-    uint8_t opcode;
-    uint8_t reg;
-    uint8_t mode;
-    uint16_t operand;
-    uint8_t length;
-    uint16_t raw;
-}Instruction;
+    uint8_t opcode;     
+    uint8_t regA;       
+    uint8_t regB;       
+    uint8_t mode;       
+    uint16_t operand;   
+    uint16_t raw;       
+    uint8_t length;     
+} Instruction;
+
 

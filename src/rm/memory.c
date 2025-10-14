@@ -1,5 +1,4 @@
-#include "../../include/memory.h"
-#include "../../include/common.h"
+#include "rm.h"
 
 
 
@@ -11,20 +10,30 @@ void initMemory(Memory *mem){
 }
 
 void write(Memory *mem, uint16_t address, uint16_t value){
-    //check mode here
-    if(address >= MEMORY_SIZE || address < 0){
-        //call interrupt maybe
-    }else{
+    if(address >= USER_MEMORY_START && address <= USER_MEMORY_END){
         mem->cells[address] = value;
+    }else if(address >= SUPERVISOR_MEMORY_START && address <= SUPERVISOR_MEMORY_END){
+        if(realCPU.MODE == MODE_SUPERVISOR){
+            mem->cells[address] = value;
+        }else{
+            raiseProgramInterrupt(PI_INVALID_ADDRESS);
+        }
+    }else{
+        raiseProgramInterrupt(PI_INVALID_ADDRESS);
     }
 }
 
 
-int read(Memory *mem, uint16_t address){
-    //check mode here
-    if(address > MEMORY_SIZE || address < 0){
-        //call interrupt maybe
-    }else{
+uint16_t read(Memory *mem, uint16_t address){
+    if(address >= USER_MEMORY_START && address <= USER_MEMORY_END){
         return mem->cells[address];
+    }else if(address >= SUPERVISOR_MEMORY_START && address <= SUPERVISOR_MEMORY_END){
+        if(realCPU.MODE == MODE_SUPERVISOR){
+            return mem->cells[address];
+        }else{
+            raiseProgramInterrupt(PI_INVALID_ADDRESS);
+        }
+    }else{
+        raiseProgramInterrupt(PI_INVALID_ADDRESS);
     }
 }
