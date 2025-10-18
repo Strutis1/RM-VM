@@ -5,6 +5,8 @@
 #include "common.h"
 
 
+/* should probably make a struct wthat houses diskSectors */
+
 typedef struct {
     uint8_t id;
     uint8_t busy;
