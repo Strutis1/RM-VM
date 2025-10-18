@@ -28,7 +28,7 @@
 #define FAILURE  1
 
 // Program
-#define MAX_PROGRAM_SIZE 256 // temp
+#define MAX_PROGRAM_SIZE VM_MEMORY_SIZE // temp
 #define MIN_PROGRAM_SIZE 32 // temp
     // will mark start and end of the program 
 #define MAGIC_BYTES 0xAB 0xCD 0xEF // magic bytes

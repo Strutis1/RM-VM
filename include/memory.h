@@ -12,7 +12,7 @@ typedef struct{
 
 extern Memory physicalMemory;
 
-void initMemory(Memory *mem);
+void RMinitMemory(Memory *mem);
 
 void write(Memory *mem, uint16_t address, uint16_t value);
 uint16_t read(Memory *mem, uint16_t address);

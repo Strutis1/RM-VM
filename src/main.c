@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    VirtualMachine vm = createVM();
-    loadProgram(&vm, argv[1]);
+    VirtualMachine* vm = createVM();
+    //loadProgram(&vm, argv[1]);
     runVM(&vm);          
 }       

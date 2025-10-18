@@ -23,8 +23,9 @@ typedef struct {
     uint16_t PC;     
     uint16_t SF;     
     uint16_t DS;    
-    uint16_t CS;     
-    uint16_t PTR;    
+    uint16_t CS;
+    uint16_t PTR;
+    uint8_t SI;    
 } VM_CPU;
 
 
