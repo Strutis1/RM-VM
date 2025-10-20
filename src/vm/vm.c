@@ -1,4 +1,5 @@
 #include "vm.h"
+#include <stdlib.h>
 
 /*
 typedef struct {
@@ -9,16 +10,26 @@ typedef struct {
 } VirtualMachine;
 */
 
-VirtualMachine* createVM(Instruction* Instructions) {
-    VirtualMachine* abc = {Instructions, initChannel(), VMinitMemory(), initCPU() };
-
-    if (loadProgram(Instructions)) {
-        abc->vm_cpu->SI = 1; // initiate halt
-        abc->channel->interruptFlag = 1; //temp val
+VirtualMachine* createVM(Channel* channel) {
+    if (!channel) return NULL;
+    uint64_t* bin = readChannel(channel);
+    if (!bin || !bin[0]) return NULL;
+    
+    int n = sizeof(bin) / sizeof(uint64_t);
+    Instruction* ins = (Instruction*)malloc(n * sizeof(Instruction));
+    for (int i = 0; i < n; ++i) {
+        char ans = stuffInstructions(ins + i, bin[i]);
+        if (ans != 0) {
+            free(ins);
+            return NULL;
+        }
     }
+
+    VirtualMachine* machine = { ins, initChannel(), VMinitMemory(), initCPU() };
+    
+    if (loadProgram(ins, machine->memory) != 0) return NULL; 
+
+    runOperations(machine);
+
     return NULL;
-}
-
-char loadProgram(Instruction* Instructions) {
-
 }

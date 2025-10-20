@@ -14,6 +14,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    // this is temporary should sub out for channel from which to read
     VirtualMachine* vm = createVM();
     //loadProgram(&vm, argv[1]);
     runVM(&vm);          

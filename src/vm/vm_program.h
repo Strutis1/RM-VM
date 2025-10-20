@@ -7,5 +7,4 @@
 #include "../../include/io.h"
 
 
-
-const char* translateInstructions(Instruction* Instructions);
+char stuffInstructions(Instruction* ins, uint64_t insRegion);

@@ -7,3 +7,6 @@
 #include "../../include/registers.h"
 
 Channel* initChannel();
+
+char writeChannel(Channel* channel);
+uint64_t* readChannel(Channel* channel);

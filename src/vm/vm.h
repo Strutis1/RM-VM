@@ -21,4 +21,4 @@ typedef struct {
 
 
 
-VirtualMachine* createVM(Instruction* Instructions);
+VirtualMachine* createVM(Channel* channel);

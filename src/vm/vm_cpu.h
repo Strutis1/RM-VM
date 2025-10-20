@@ -19,3 +19,5 @@ typedef struct {
 // implement the instructions
 
 VM_CPU* initCPU();
+
+void runOperations(VirtualMachine* vm);
