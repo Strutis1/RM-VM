@@ -3,7 +3,7 @@
 
 
 
-void initMemory(Memory *mem){
+void RMinitMemory(Memory *mem){
     for (int i = 0; i < MEMORY_SIZE; i++) {
         mem->cells[i] = 0;
     }

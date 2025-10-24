@@ -130,7 +130,7 @@ bool decode(uint16_t rawWord, Instruction *inst) {
 }
 
 
-
+// instruction handling
 //define right hand values before switch maybe better
 void execute(Instruction inst) {
     //check mode 

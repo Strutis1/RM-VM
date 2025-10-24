@@ -40,3 +40,13 @@
 #define FLAG_CARRY     0x8
 
 
+// Program
+#define MAX_PROGRAM_SIZE VM_MEMORY_SIZE // temp
+#define MIN_PROGRAM_SIZE 32 // temp
+    // will mark start and end of the program 
+#define MAGIC_BYTES 0xAB 0xCD 0xEF // magic bytes
+#define MAGIC_SEPERATOR 0xFE 0xDC 0xBA // magic byte end
+#define EMPTY 0x00
+
+// Misc
+#define NULL 0LL

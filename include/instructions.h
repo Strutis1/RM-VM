@@ -2,7 +2,6 @@
 #include <stdint.h>
 
 
-
 #define OP_HALT     0x00
 #define OP_LOAD     0x01
 #define OP_STORE    0x02

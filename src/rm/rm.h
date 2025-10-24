@@ -5,6 +5,7 @@
 #include "../../include/instructions.h"
 #include "../../include/interrupts.h"
 #include "../../include/memory.h"
+#include <stdlib.h>
 #include <stdbool.h>
 
 
