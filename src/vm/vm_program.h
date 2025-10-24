@@ -5,7 +5,8 @@
 #include "../../include/instructions.h"
 #include "../../include/interrupts.h"
 #include "../../include/channel.h"
-#include "../../include/device.h"
+#include "../../include/registers.h"
 
 
-char stuffInstructions(Instruction* ins, uint64_t insRegion);
+//char executeInstruction(Instruction* ins, const uint16_t insWord);
+char executeInstruction(Instruction* ins, VM_CPU* cpu);

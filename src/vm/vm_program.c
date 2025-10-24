@@ -40,7 +40,9 @@ typedef struct {
 
 
 //changed the function because of changed instruction structure
-char stuffInstructions(Instruction* ins, const uint16_t insWord) {
+// changed the name from stuffInstruction to execute... 
+
+char executeInstruction(Instruction* ins, const uint16_t insWord) {
     ins->raw = insWord;
 
     ins->opcode = (insWord >> 12) & 0xF;
@@ -90,3 +92,17 @@ char stuffInstructions(Instruction* ins, const uint16_t insWord) {
 
     return 0; 
 }
+
+
+
+/*
+typedef struct {
+    uint16_t R[REG_COUNT];   
+    uint16_t PC;     
+    uint16_t SF;     
+    uint16_t DS;    
+    uint16_t CS;
+    uint16_t PTR;
+    uint8_t SI;    
+} VM_CPU;
+*/

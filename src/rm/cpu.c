@@ -35,8 +35,6 @@ void raiseProgramInterrupt(uint16_t code) {
 }
 
 
-
-
 bool interrupted(){
     if(realCPU.PI != PI_NONE || realCPU.SI != SI_NONE || realCPU.TI != TI_NONE)
         return true;
