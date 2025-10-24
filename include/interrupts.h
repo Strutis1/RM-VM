@@ -1,5 +1,7 @@
 #pragma once
-
+#include "common.h"
+#include <stdint.h>
+#include <stdbool.h>
 
 
 // Interrupts
@@ -15,3 +17,16 @@
 
 #define TI_NONE             0
 #define TI_EXPIRED          1
+
+typedef struct {
+    uint8_t PI;
+    uint8_t SI;
+    uint8_t TI;
+} InterruptState;
+
+void initInterrupts(InterruptState *intr);
+bool hasInterrupt(const InterruptState *intr);
+void raiseProgramInterrupt(InterruptState *intr, uint8_t code);
+void raiseSupervisorInterrupt(InterruptState *intr, uint8_t code);
+void raiseTimerInterrupt(InterruptState *intr);
+void handleInterrupts(InterruptState *intr);
