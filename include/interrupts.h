@@ -10,7 +10,8 @@
 #define PI_INVALID_ADDRESS  2
 #define PI_INVALID_REGISTER 3
 #define PI_DIVZERO          4
-#define PI_OVERFLOW         5
+#define PI_PRIVILEGE_VIOLATION 5 //if user tries to access supervisor privilege
+#define PI_OVERFLOW         6
 
 
 #define SI_NONE             0
@@ -32,5 +33,5 @@ void initInterrupts(InterruptState *intr);
 bool hasInterrupt(const InterruptState *intr);
 // void raiseProgramInterrupt(InterruptState *intr, uint8_t code); pjaunaji su cpu.h esanciu metodu tai if can sujungti or change it a bit
 void raiseSupervisorInterrupt(InterruptState *intr, uint8_t code);
-void raiseTimerInterrupt(InterruptState *intr);
-void handleInterrupts(InterruptState *intr);
+// void raiseTimerInterrupt(InterruptState *intr);
+// void handleInterrupts(InterruptState *intr);

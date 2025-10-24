@@ -1,21 +1,30 @@
 #include "rm/rm.h"
-#include "vm/vm.h"
+#include <stdio.h>
 
+int main(void) {
+    printf("[MAIN] Starting Real Machine test...\n");
 
-
-
-
-
-int main(int argc, char *argv[]) {
+    // Initialize everything
     initRealMachine();
 
-    if (argc < 2) {
-        printf("Usage: program_name <program_folder>\n");
-        return 1;
-    }
+    // --- Load a simple test program into memory ---
+    // Example program:
+    // 0x1001 = LOAD R0, #1
+    // 0x2002 = LOAD R1, #2
+    // 0x3001 = ADD R0, R1
+    // 0x0000 = HALT
 
-    // this is temporary should sub out for channel from which to read
-    VirtualMachine* vm = createVM();
-    //loadProgram(&vm, argv[1]);
-    runVM(&vm);          
-}       
+    physicalMemory.cells[0] = 0x1001;
+    physicalMemory.cells[1] = 0x2002;
+    physicalMemory.cells[2] = 0x3001;
+    physicalMemory.cells[3] = 0x0000; // HALT
+
+    realCPU.MODE = MODE_SUPERVISOR; // allow HALT
+    realCPU.IC = 0;
+
+    printf("[MAIN] Running CPU cycle...\n");
+    execCycle();
+
+    printf("[MAIN] Done. R0=%u, R1=%u\n", realCPU.R[0], realCPU.R[1]);
+    return 0;
+}

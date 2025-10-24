@@ -1,4 +1,11 @@
-#include "rm.h"
+#include "../../include/common.h"
+#include "../../include/registers.h"
+#include "../../include/interrupts.h"
+#include "../../include/memory.h"
+#include "../../include/timer.h"
+#include "cpu.h"
+#include <stdlib.h>
+#include <stdbool.h>
 
 
 

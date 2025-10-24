@@ -12,6 +12,7 @@ typedef struct {
 } Timer;
 
 void initTimer(Timer *timer, uint16_t limit);
-bool tickTimer(Timer *timer);
+void tickTimer(Timer *timer); //was bool but conflicting
+void raiseTimerInterrupt(uint16_t code);
 bool checkTimerInterrupt(Timer *timer);
 void resetTimer(Timer *timer);

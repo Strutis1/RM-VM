@@ -17,21 +17,17 @@
 #define SUPERVISOR_MEMORY_END 511
 #define PTR_START          240 //for now
 
-// Disk
-#define DISK_SECTOR_SIZE 16
-#define DISK_SECTOR_COUNT 64
-
 
 // Modes
-#define MODE_USER          0
-#define MODE_SUPERVISOR    1
+#define MODE_USER          0x0
+#define MODE_SUPERVISOR    0x1
 
 // Timer
 #define TICK_LIMIT  10
 
 // Status
-#define SUCCESS  0
-#define FAILURE  1
+#define SUCCESS  0x1
+#define FAILURE  0x0
 
 // Flags
 #define FLAG_ZERO      0x1
@@ -49,4 +45,4 @@
 #define EMPTY 0x00
 
 // Misc
-#define NULL 0LL
+// #define NULL 0LL defined somewhere else

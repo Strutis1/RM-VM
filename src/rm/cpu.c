@@ -1,4 +1,7 @@
-#include "rm.h"
+#include "cpu.h"
+#include <stdio.h>
+#include <stdint.h>
+#include <stdbool.h>
 
 
 
@@ -42,9 +45,10 @@ bool interrupted(){
 
 bool fetch(uint16_t *word) {
     *word = read(&physicalMemory, realCPU.IC);
-    if (realCPU.PI != PI_NONE) return FAILURE;
+    printf("[DEBUG] Fetch @%u = 0x%04X\n", realCPU.IC, *word);
+    if (realCPU.PI != PI_NONE) return false;
     realCPU.IC++;
-    return SUCCESS;
+    return true;
 }
 
 
@@ -63,7 +67,7 @@ bool fetch(uint16_t *word) {
 
 
 
-//if failure a fault was raised
+//if false a fault was raised
 bool decode(uint16_t rawWord, Instruction *inst) {
     inst->raw = rawWord;
     inst->opcode = (rawWord >> 12) & 0xF;
@@ -103,13 +107,13 @@ bool decode(uint16_t rawWord, Instruction *inst) {
 
         default:
             raiseProgramInterrupt(PI_INVALID_OPCODE);
-            return FAILURE;
+            return false;
     }
 
     // validation
     if (inst->regA >= REG_COUNT) {
         raiseProgramInterrupt(PI_INVALID_REGISTER);
-        return FAILURE;
+        return false;
     }
 
     if ((inst->opcode == OP_LOAD || inst->opcode == OP_STORE ||
@@ -117,15 +121,15 @@ bool decode(uint16_t rawWord, Instruction *inst) {
          inst->opcode == OP_JNZ) &&
         inst->operand >= MEMORY_SIZE) {
         raiseProgramInterrupt(PI_INVALID_ADDRESS);
-        return FAILURE;
+        return false;
     }
 
     if (inst->mode >= 4) {
         raiseProgramInterrupt(PI_INVALID_OPCODE);
-        return FAILURE;
+        return false;
     }
 
-    return SUCCESS;
+    return true;
 }
 
 
@@ -278,6 +282,36 @@ void execute(Instruction inst) {
 }
 
 
+//for testing
+int handleInterrupts(void) {
+    if (realCPU.SI == SI_HALT) {
+        printf("[RM] HALT interrupt received. Stopping CPU.\n");
+        return 0; // stop the main loop
+    }
+
+    if (realCPU.SI == SI_READ) {
+        printf("[RM] READ interrupt (unhandled for now).\n");
+        realCPU.SI = SI_NONE;
+    }
+
+    if (realCPU.SI == SI_WRITE) {
+        printf("[RM] WRITE interrupt (unhandled for now).\n");
+        realCPU.SI = SI_NONE;
+    }
+
+    if (realCPU.PI != PI_NONE) {
+        printf("[RM] Program interrupt (code %u)\n", realCPU.PI);
+        realCPU.PI = PI_NONE;
+    }
+
+    if (realCPU.TI != TI_NONE) {
+        printf("[RM] Timer interrupt.\n");
+        realCPU.TI = TI_NONE;
+    }
+
+    return 1;
+}
+
 
 
 void execCycle() {
@@ -300,6 +334,8 @@ void execCycle() {
             }
         }
 
-        // running = handleInterrupts();
+        running = handleInterrupts();
     }
 }
+
+

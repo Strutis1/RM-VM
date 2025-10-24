@@ -1,7 +1,9 @@
-#include "rm.h"
 
 #include "../../include/timer.h"
 #include "../../include/common.h"
+#include "../../include/registers.h"
+#include "../../include/interrupts.h"
+#include <stdlib.h>
 
 void raiseTimerInterrupt(uint16_t code) {
     if (code >= TI_NONE && code <= TI_EXPIRED)

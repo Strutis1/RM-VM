@@ -1,8 +1,14 @@
-#include "rm.h"
+
 #include "../../include/disk.h"
 #include "../../include/common.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
+
+
+
+
+
 
 void initDisk(HardDisk *disk, uint8_t id) {
     disk->id = id;

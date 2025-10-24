@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "common.h"
+#include <stdbool.h>
 
 #define DISK_SECTOR_COUNT 128
 #define DISK_SECTOR_SIZE  16
@@ -17,6 +18,9 @@ typedef struct {
     uint16_t head;
     uint8_t storage[DISK_SECTOR_COUNT][DISK_SECTOR_SIZE];
 } HardDisk;
+
+extern HardDisk hardDisk;
+static bool diskInitialized = false;
 
 void initDisk(HardDisk *disk, uint8_t id);
 bool readDisk(HardDisk *disk, uint16_t sector, uint8_t *buffer);

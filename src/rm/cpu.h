@@ -1,4 +1,5 @@
 #pragma once
+
 #include "../../include/common.h"
 #include "../../include/registers.h"
 #include "../../include/instructions.h"
@@ -9,8 +10,12 @@
 #include "../../include/io.h"
 #include "../../include/disk.h"
 #include "../../include/timer.h"
-#include "cpu.h"
 #include <stdlib.h>
 #include <stdbool.h>
 
-void initRealMachine();
+
+void raiseProgramInterrupt(uint16_t code);
+
+void initCPU(CPU *cpu);
+
+void execCycle();
