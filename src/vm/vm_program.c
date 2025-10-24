@@ -38,21 +38,55 @@ typedef struct {
 } Instruction;
 */
 
-char stuffInstructions(Instruction* ins, const uint64_t insRegion) {
-    ins->opcode  = (insRegion >> 56) & 0xFF;
-    if (ins->opcode > 0x10) return 1;
 
-    ins->reg     = (insRegion >> 48) & 0xFF;
-    if (ins->reg > 0x06) return 2;
+//changed the function because of changed instruction structure
+char stuffInstructions(Instruction* ins, const uint16_t insWord) {
+    ins->raw = insWord;
 
-    ins->mode    = (insRegion >> 40) & 0xFF;
-    if (ins->mode > 0x04) return 3;
+    ins->opcode = (insWord >> 12) & 0xF;
+    if (ins->opcode > 0xE) return 1; 
 
-    ins->operand = (insRegion >> 24) & 0xFFFF;
-    if (ins->operand > 0xFF) return 4;
-    
-    ins->length  = (insRegion >> 16) & 0xFF;
-    ins->raw     = insRegion & 0xFFFF;
+    ins->regA = (insWord >> 9) & 0x7;
+    if (ins->regA >= REG_COUNT) return 2; 
 
-    return 0;
+    ins->mode = 0;
+    ins->regB = 0;
+    ins->operand = 0;
+    ins->length = 1; 
+
+    switch (ins->opcode) {
+        case OP_LOAD:
+        case OP_STORE:
+            ins->mode = (insWord >> 7) & 0x3;
+            ins->operand = insWord & 0x7F;
+            if (ins->mode > 3) return 3;
+            break;
+
+        case OP_ADD:
+        case OP_SUB:
+        case OP_MUL:
+        case OP_DIV:
+        case OP_CMP:
+            ins->regB = (insWord >> 6) & 0x7;
+            if (ins->regB >= REG_COUNT) return 4;
+            break;
+
+        case OP_JMP:
+        case OP_JZ:
+        case OP_JNZ:
+            ins->operand = insWord & 0x1FF;
+            break;
+
+        case OP_READ:
+        case OP_WRITE:
+        case OP_HALT:
+        case OP_NOP:
+        case OP_SYS:
+            break;
+
+        default:
+            return 5; 
+    }
+
+    return 0; 
 }
