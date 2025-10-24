@@ -1,6 +1,4 @@
 #include "rm.h"
-#include "rm_supervisor.h"
-
 
 
 
@@ -17,7 +15,7 @@ void initCPU(CPU *cpu){
     cpu->PTR = PTR_START;
 }
 
-
+//started with interrupt handling but someone else started it
 void raiseProgramInterrupt(uint16_t code) {
     switch (code) {
         case PI_NONE:
@@ -302,6 +300,6 @@ void execCycle() {
             }
         }
 
-        running = handleInterrupts();
+        // running = handleInterrupts();
     }
 }
