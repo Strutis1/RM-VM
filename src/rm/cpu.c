@@ -1,4 +1,5 @@
 #include "rm.h"
+#include "rm_supervisor.h"
 
 
 
@@ -282,16 +283,25 @@ void execute(Instruction inst) {
 
 
 void execCycle() {
-    while (!interrupted()) {
-        uint16_t rawInstruction;
-        if (!fetch(&rawInstruction))
-            break;  
+    int running = 1;
+    int ticks = 0;
 
-        Instruction decodedInst;
-        if (!decode(rawInstruction, &decodedInst))
-            break; 
+    while (running) {
+        while (!interrupted()) {
+            uint16_t rawInstruction;
+            if (!fetch(&rawInstruction)) break;
 
-        execute(decodedInst);
+            Instruction decodedInst;
+            if (!decode(rawInstruction, &decodedInst)) break;
+
+            execute(decodedInst);
+
+            if (++ticks >= TICK_LIMIT) {
+                raiseTimerInterrupt(TI_EXPIRED);
+                ticks = 0;
+            }
+        }
+
+        running = handleInterrupts();
     }
-    // handle interrupt
 }
