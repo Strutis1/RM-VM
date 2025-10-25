@@ -39,8 +39,10 @@ uint16_t read(Memory *mem, uint16_t address){
             return mem->cells[address];
         }else{
             raiseProgramInterrupt(PI_INVALID_ADDRESS);
+            return 0;
         }
     }else{
         raiseProgramInterrupt(PI_INVALID_ADDRESS);
+        return 0;
     }
 }

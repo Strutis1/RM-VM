@@ -33,10 +33,17 @@ bool IOread(uint16_t sector, uint8_t *buffer) {
     if (!diskChannel) return false;
     bool ok = channelRead(diskChannel, sector, buffer);
 
-    if (!ok)
+    if (!ok) {
         printf("[IO] Failed to read sector %u\n", sector);
-    return ok;
+        return false;
+    }
+    raiseSystemInterrupt(SI_READ);
+    printf("[IO] Sector %u read complete, SI_READ interrupt raised.\n", sector);
+
+    return true;
 }
+
+
 
 bool IOwrite(uint16_t sector, const uint8_t *buffer) {
     if (!diskChannel) return false;
