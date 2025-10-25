@@ -2,6 +2,7 @@
 #include "common.h"
 #include <stdint.h>
 #include <stdbool.h>
+#include "registers.h"
 
 
 // Interrupts
@@ -23,15 +24,8 @@
 #define TI_NONE             0
 #define TI_EXPIRED          1
 
-typedef struct {
-    uint8_t PI;
-    uint8_t SI;
-    uint8_t TI;
-} InterruptState;
-
-void initInterrupts(InterruptState *intr);
-bool hasInterrupt(const InterruptState *intr);
-// void raiseProgramInterrupt(InterruptState *intr, uint8_t code); pjaunaji su cpu.h esanciu metodu tai if can sujungti or change it a bit
-void raiseSupervisorInterrupt(InterruptState *intr, uint8_t code);
-// void raiseTimerInterrupt(InterruptState *intr);
-// void handleInterrupts(InterruptState *intr);
+void raiseProgramInterrupt(uint16_t code);
+void raiseSystemInterrupt(uint16_t code);
+void raiseTimerInterrupt(uint16_t code);
+bool hasPendingInterrupt(void);
+void clearAllInterrupts(void);
