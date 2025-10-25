@@ -3,7 +3,7 @@
 
 
 Device *createDevice(uint8_t id, void *data) {
-    Device *dev = malloc(sizeof(Device));
+    Device *dev = (Device*) malloc(sizeof(Device));
     if (!dev) return NULL;
 
     dev->id = id;

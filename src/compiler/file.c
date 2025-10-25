@@ -10,7 +10,7 @@ uint8_t* generateNULLregion(int size) {
 }
 
 uint8_t* generateProgramRegion() {
-    uint8_t* programRegion = (uint8_t) malloc(MAX_PROGRAM_SIZE * sizeof(uint8_t));
+    uint8_t* programRegion = (uint8_t*) malloc(MAX_PROGRAM_SIZE * sizeof(uint8_t));
     memset(programRegion, 0x00, MAX_PROGRAM_SIZE-1);
     programRegion[0] = 0xAB;
     programRegion[1] = 0xCD;
@@ -30,7 +30,7 @@ uint8_t* generateBinBinary() {
 
     int maxMem = 256;
 
-    uint8_t* storee = (uint8_t) malloc(maxMem * sizeof(uint8_t));
+    uint8_t* storee = (uint8_t*) malloc(maxMem * sizeof(uint8_t));
     memmove(storee, dseg, DATASEG_SIZE);
     memmove(storee + DATASEG_SIZE, pseg, MAX_PROGRAM_SIZE);
     memmove(storee + DATASEG_SIZE + MAX_PROGRAM_SIZE, aseg, ANSWER_REGION);

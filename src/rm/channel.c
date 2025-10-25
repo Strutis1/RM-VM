@@ -3,7 +3,7 @@
 
 
 Channel *createChannel(uint8_t id, Device *dev) {
-    Channel *ch = malloc(sizeof(Channel));
+    Channel *ch = (Channel*) malloc(sizeof(Channel));
     if (!ch) return NULL;
 
     ch->id = id;

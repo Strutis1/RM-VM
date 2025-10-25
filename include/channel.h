@@ -7,7 +7,7 @@
 
 
 
-typedef struct Channel {
+typedef struct {
     uint8_t id;
     uint8_t busy;
     uint8_t ready;
