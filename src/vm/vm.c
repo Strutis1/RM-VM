@@ -10,6 +10,11 @@ typedef struct {
 } VirtualMachine;
 */
 
+Device* initDevice(Channel* channel) {
+    Device* abc = { 0, channel };
+    return abc;
+}
+
 VirtualMachine* createVM(Channel* channel) {
     if (!channel) return NULL;
     uint64_t* bin = readChannel(channel);

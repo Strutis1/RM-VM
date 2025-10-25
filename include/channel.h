@@ -3,10 +3,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "device.h"
 
 
-
+/*
 typedef struct {
     uint8_t id;
     uint8_t busy;
@@ -14,8 +13,15 @@ typedef struct {
     uint8_t interruptFlag;
     Device *device;
 } Channel;
+ */
 
+typedef struct {
+    char* flag; // read or write
+    char* busy; // flag for channel busy y/n
+    uint8_t id; // channel ID, not sure why we need it but lets keep it ig (were running 1 vm)
+    uint64_t* bin; //the actual data
+    //uint8_t interruptFlag; // i dont know what this does so im just keeping it here
+} Channel;
 
-Channel *createChannel(uint8_t id, struct Device *dev);
-bool channelRead(Channel *ch, uint16_t addr, uint8_t *buffer);
-bool channelWrite(Channel *ch, uint16_t addr, const uint8_t *buffer);
+char writeChannelData(Channel* chan, uint64_t* binPtr);
+uint32_t readChannelData(Channel* dev);

@@ -16,7 +16,7 @@
 
 typedef struct {
     Instruction* instructions;
-    Channel* channel;
+    Device* device;
     VM_MEMORY* memory;
     VM_CPU* vm_cpu;
 } VirtualMachine;

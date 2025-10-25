@@ -1,35 +1,25 @@
 #include "../../include/channel.h"
+#include "../utils/utils.h"
 
+char writeChannelData(Channel* chan, uint64_t* binPtr) {
+    if (chan->busy == 1) {
+        do {
+            sleep_ms(500);
+        } while (chan->busy == 1);
+    }
+    chan->busy = 1;
+    chan->flag = 0;
+    chan->bin = (uint64_t*) malloc(sizeof(binPtr) / sizeof(uint64_t));
+    chan->busy = 1;
 
-
-Channel *createChannel(uint8_t id, Device *dev) {
-    Channel *ch = (Channel*) malloc(sizeof(Channel));
-    if (!ch) return NULL;
-
-    ch->id = id;
-    ch->busy = 0;
-    ch->ready = 1;
-    ch->interruptFlag = 0;
-    ch->device = dev;
-    return ch;
+    return 0;
 }
 
-bool channelRead(Channel *ch, uint16_t addr, uint8_t *buffer) {
-    if (!ch || !ch->device || ch->busy) return false;
-
-    ch->busy = 1;
-    bool ok = deviceRead(ch->device, addr, buffer);
-    ch->busy = 0;
-    ch->interruptFlag = ok;
-    return ok;
-}
-
-bool channelWrite(Channel *ch, uint16_t addr, const uint8_t *buffer) {
-    if (!ch || !ch->device || ch->busy) return false;
-
-    ch->busy = 1;
-    bool ok = deviceWrite(ch->device, addr, buffer);
-    ch->busy = 0;
-    ch->interruptFlag = ok;
-    return ok;
+//return up to 4 bytes as the answes can be up to 4 bytters
+uint32_t readChannelData(Channel* chan) { 
+    chan->busy = 1;
+    chan->flag = 1;
+    uint32_t ans = (uint32_t)(chan->bin[0] & 0xFFFFFFFFULL);
+    chan->busy = 0;
+    return ans;
 }

@@ -1,5 +1,3 @@
-#include <stdio.h>
-#include <string.h>
 #include "utils.h"
 
 // write to STDOUT
@@ -87,6 +85,7 @@ void generateConfig() {
     printf("4) Write to custom fptr and stdout\n");
     int ans = getchar();
     int c = getchar();
+    printf('\n');
     (void)c;
     if(ans < '0' || ans > '4') return;
 
