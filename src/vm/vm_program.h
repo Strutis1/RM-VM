@@ -8,5 +8,4 @@
 #include "../../include/registers.h"
 
 
-//char executeInstruction(Instruction* ins, const uint16_t insWord);
-char executeInstruction(Instruction* ins, VM_CPU* cpu);
+char executeInstruction(Instruction* ins, const uint16_t insWord);
