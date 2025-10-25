@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 
-typedef struct Device {
+typedef struct {
     uint8_t id;
     uint8_t busy;
     uint8_t ready;

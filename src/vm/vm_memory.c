@@ -51,10 +51,10 @@ char stuffInstructions(Instruction* ins, const uint64_t insRegion) {
     if (ins->regA > 0x06) return 2;
 
     ins->regB    = (insRegion >> 40) & 0xFF;
-    if (ins->regB > 0x06) return 5;
+    if (ins->regB > 0x06) return 3;
 
     ins->mode    = (insRegion >> 32) & 0xFF;
-    if (ins->mode > 0x04) return 3;
+    if (ins->mode > 0x04) return 4;
 
     ins->operand = (insRegion >> 16) & 0xFFFF;
     ins->raw     = insRegion & 0xFFFF;
