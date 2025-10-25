@@ -2,12 +2,16 @@
 #include "../../include/disk.h"
 #include "../../include/interrupts.h"
 #include "../../include/registers.h"
+#include "../../include/memory.h"
 #include <stdbool.h>
 #include <stdio.h>
 
-//i know it broke i fix
+extern CPU realCPU;
+extern Memory physicalMemory;
+extern HardDisk hardDisk;
 
-static Channel *diskChannel = NULL;
+static ChannelDevice diskChannel;
+static bool diskInitialized = false;
 
 
 void raiseSystemInterrupt(uint16_t code) {
@@ -15,52 +19,65 @@ void raiseSystemInterrupt(uint16_t code) {
         realCPU.SI = code;
 }
 
-
-
 void IOinit(void) {
     if (!diskInitialized) {
         initDisk(&hardDisk, 0);
+        initChannelDevice(&diskChannel);
         diskInitialized = true;
-    }
-
-    if (!diskChannel) {
-        Device *dev = createDevice(0, &hardDisk);
-        diskChannel = createChannel(0, dev);
-        printf("[IO] Disk channel initialized.\n");
+        printf("[IO] Disk and channel initialized.\n");
     }
 }
 
 
-bool IOread(uint16_t sector, uint8_t *buffer) {
-    if (!diskChannel) return false;
-    bool ok = channelRead(diskChannel, sector, buffer);
+bool IOread(uint16_t sector, uint16_t destAddr, uint16_t count) {
+    if (!diskInitialized) return false;
 
+    diskChannel.ST = CH_SRC_DISK;
+    diskChannel.SB = sector;
+    diskChannel.DT = CH_DST_SUPER_MEM;
+    diskChannel.DB = destAddr;
+    diskChannel.COUNT = count;
+    diskChannel.OFFSET = 0;
+
+    bool ok = channelXCHG(&diskChannel, &physicalMemory, &hardDisk, &realCPU);
     if (!ok) {
         printf("[IO] Failed to read sector %u\n", sector);
         return false;
     }
+
     raiseSystemInterrupt(SI_READ);
     printf("[IO] Sector %u read complete, SI_READ interrupt raised.\n", sector);
-
     return true;
 }
 
 
+// Write supervisor memory data to disk
+bool IOwrite(uint16_t sector, uint16_t srcAddr, uint16_t count) {
+    if (!diskInitialized) return false;
 
-bool IOwrite(uint16_t sector, const uint8_t *buffer) {
-    if (!diskChannel) return false;
-    bool ok = channelWrite(diskChannel, sector, buffer);
+    diskChannel.ST = CH_SRC_SUPER_MEM;
+    diskChannel.SB = srcAddr;
+    diskChannel.DT = CH_DST_DISK;
+    diskChannel.DB = sector;
+    diskChannel.COUNT = count;
+    diskChannel.OFFSET = 0;
 
-    if (!ok)
+    bool ok = channelXCHG(&diskChannel, &physicalMemory, &hardDisk, &realCPU);
+    if (!ok) {
         printf("[IO] Failed to write sector %u\n", sector);
-    return ok;
+        return false;
+    }
+
+    raiseSystemInterrupt(SI_WRITE);
+    printf("[IO] Sector %u write complete, SI_WRITE interrupt raised.\n", sector);
+    return true;
 }
 
 
 void IOcheckInterrupts(void) {
-    if (diskChannel && diskChannel->interruptFlag) {
-        diskChannel->interruptFlag = 0;
-        raiseSystemInterrupt(SI_WRITE);  
-        printf("[IO] Disk interrupt triggered.\n");
+    if (diskChannel.busy) return;
+    if (realCPU.SI != SI_NONE) {
+        printf("[IO] Handling I/O interrupt SI=%u\n", realCPU.SI);
+        realCPU.SI = SI_NONE;
     }
 }
