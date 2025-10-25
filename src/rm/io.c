@@ -1,9 +1,11 @@
-#include "../../include/channel.h"
+#include "../../include/channel_device.h"
 #include "../../include/disk.h"
 #include "../../include/interrupts.h"
 #include "../../include/registers.h"
 #include <stdbool.h>
 #include <stdio.h>
+
+//i know it broke i fix
 
 static Channel *diskChannel = NULL;
 
