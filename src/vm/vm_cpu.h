@@ -13,8 +13,7 @@ typedef struct {
 #include "../../include/common.h"
 #include "../../include/instructions.h"
 #include "../../include/interrupts.h"
-#include "../../include/channel.h"
-#include "../../include/device.h"
+#include "../../include/channel_device.h"
 #include "../../include/registers.h"
 
 // implement the instructions
