@@ -13,17 +13,6 @@ VM_MEMORY* VMinitMemory() {
     return abc;
 }
 
-/*
-typedef struct {
-    uint8_t opcode;
-    uint8_t reg;
-    uint8_t mode;
-    uint16_t operand;
-    uint8_t length;
-    uint16_t raw;
-} Instruction;
-*/
-
 char loadProgram(Instruction* ins, VM_MEMORY* mem) {
     size_t pc = 0;
     for (int i = 0;; ++i) {
@@ -59,7 +48,7 @@ static inline char stuffInstruction(Instruction *ins, uint16_t word) {
     ins->mode    = (word >> 4) & 0x3;
     if (ins->mode > 3) return 4;
 
-    ins->operand =  word        & 0xF;   // 4-bit quick operand
+    ins->operand =  word        & 0xF;
     ins->length  = 1;
 
     return 0;
