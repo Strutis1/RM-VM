@@ -49,3 +49,11 @@ void simulateDiskInterrupt(HardDisk *disk) {
         disk->interruptFlag = 0;
     }
 }
+
+uint16_t diskReadWord(HardDisk *disk, uint16_t sector) {
+    if (sector >= DISK_SECTOR_COUNT) return 0;
+
+    uint16_t low = disk->storage[sector][0];
+    uint16_t high = disk->storage[sector][1];
+    return (uint16_t)(low | (high << 8));
+}

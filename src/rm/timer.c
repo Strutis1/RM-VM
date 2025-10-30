@@ -5,11 +5,6 @@
 #include "../../include/interrupts.h"
 #include <stdlib.h>
 
-void raiseTimerInterrupt(uint16_t code) {
-    if (code >= TI_NONE && code <= TI_EXPIRED)
-        realCPU.TI = code;
-}
-
 void initTimer(Timer *timer, uint16_t limit) {
     timer->counter = 0;
     timer->limit = limit;

@@ -11,5 +11,6 @@
 #include "cpu.h"
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../vm/vm.h"
 
 void initRealMachine();

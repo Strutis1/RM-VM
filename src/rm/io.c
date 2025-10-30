@@ -14,11 +14,6 @@ static ChannelDevice diskChannel;
 static bool diskInitialized = false;
 
 
-void raiseSystemInterrupt(uint16_t code) {
-    if (code >= SI_NONE && code <= SI_HALT)
-        realCPU.SI = code;
-}
-
 void IOinit(void) {
     if (!diskInitialized) {
         initDisk(&hardDisk, 0);

@@ -28,8 +28,7 @@ char writeDefaultBoth(const char* msg);
 extern char g_fname[17];
 extern char (*logFuncPtr)(const char*, const char*);
 
-char log(const char* msg);
-
+char logM(const char* msg);
 
 
 // ------------------ Please dont break the code above ------------------ \\
