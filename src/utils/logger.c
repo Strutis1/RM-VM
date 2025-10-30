@@ -52,25 +52,25 @@ char writeDefaultBoth(const char* msg) {
     return a | b;
 }
 
-static char w_stdout(const char* s, const char* f return writeSTDOUT(s); }
-static char w_def_file(const char* s, const char* f return writeDefaultFPTR(s); }
-static char w_def_both(const char* s, const char* f return writeDefaultBoth(s); }
-static char w_file(const char* s, const char* f return writeFPTR(s,f); }
-static char w_both(const char* s, const char* f return writeBoth(s,f); }
+static char w_stdout(const char* s, const char* f) { return writeSTDOUT(s); }
+static char w_def_file(const char* s, const char* f) {return writeDefaultFPTR(s); }
+static char w_def_both(const char* s, const char* f) { return writeDefaultBoth(s); }
+static char w_file(const char* s, const char* f) { return writeFPTR(s,f); }
+static char w_both(const char* s, const char* f) { return writeBoth(s,f); }
 
 char g_fname[17] = DEFAULT_FNAME;
 char (*logFuncPtr)(const char*, const char*) = w_stdout;
 
-char log(const char* msg) {
+char _log(const char* msg) {
     return logFuncPtr ? logFuncPtr(msg, g_fname) : 0;
 }
 
-static int read_name(char *dst
+static int read_name(char *dst) {
     if (scanf(" %16[.ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz]", dst) != 1) return 0;
     int c = getchar();
     int clean = 1;
     
-    while(c!='\n'&&c!=EOF
+    while(c!='\n'&&c!=EOF) {
         clean=0;
         c=getchar();
     }
@@ -90,7 +90,7 @@ void generateConfig() {
     (void)c;
     if(ans < '0' || ans > '4') return;
 
-    switch(ans
+    switch(ans) {
         case '0':
             logFuncPtr = w_stdout;
             return;
@@ -113,9 +113,9 @@ void generateConfig() {
 
     }
 
-    if(!read_name(g_fname)
+    if(!read_name(g_fname)) {
         strncpy(g_fname, DEFAULT_FNAME, 16);
         g_fname[16] = '\0';
-        log("[ERROR] [logMain] Going with default logging file\n");
+        _log("[ERROR] [logMain] Going with default logging file\n");
     }
 }

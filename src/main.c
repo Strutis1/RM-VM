@@ -2,17 +2,16 @@
 #include <stdio.h>
 #include "utils/utils.h"
 
-int onStartupPrompts() {
+void onStartupPrompts() {
     // do on startup commanding
     generateConfig();
-
 }
 
 
 int main(void) {
     onStartupPrompts();
     
-    log("[MAIN] Starting Real Machine test...\n");
+    _log("[MAIN] Starting Real Machine test...\n");
 
     // Initialize everything
     initRealMachine();
@@ -32,9 +31,9 @@ int main(void) {
     realCPU.MODE = MODE_SUPERVISOR; // allow HALT
     realCPU.IC = 0;
 
-    log("[MAIN] Running CPU cycle...\n");
+    _log("[MAIN] Running CPU cycle...\n");
     execCycle();
 
-    log("[MAIN] Done. R0=%u, R1=%u\n", realCPU.R[0], realCPU.R[1]);
+    _log("[MAIN] Done.\n");
     return 0;
 }

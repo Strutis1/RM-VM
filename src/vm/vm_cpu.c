@@ -38,7 +38,7 @@ static inline void vm_mem_write16(VirtualMachine* vm, uint16_t addr, uint16_t v)
     m[addr+1] = (uint8_t)(v & 0xFF);
 }
 
-VM_CPU* initCPU() {
+VM_CPU* initVM_CPU() {
     VM_CPU* c = (VM_CPU*)calloc(1, sizeof(VM_CPU));
     return c;
 }

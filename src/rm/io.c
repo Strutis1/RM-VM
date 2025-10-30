@@ -11,11 +11,11 @@ extern Memory physicalMemory;
 extern HardDisk hardDisk;
 
 static ChannelDevice diskChannel;
-static bool diskInitialized = false;
+bool diskInitialized = false;
 
 
 void raiseSystemInterrupt(uint16_t code) {
-    if (code >= SI_NONE && code <= SI_HALT)
+    if (code < SI_SYS)
         realCPU.SI = code;
 }
 

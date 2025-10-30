@@ -5,6 +5,7 @@
 #include "../../include/timer.h"
 #include "cpu.h"
 #include <stdlib.h>
+#include <stdint.h>
 #include <stdbool.h>
 
 
@@ -45,4 +46,20 @@ uint16_t read(Memory *mem, uint16_t address){
         raiseProgramInterrupt(PI_INVALID_ADDRESS);
         return 0;
     }
+}
+
+uint16_t readUser(Memory* mem, uint16_t addr) {
+    return mem->cells[addr];
+}
+
+void writeUser(Memory* mem, uint16_t addr, uint16_t value) {
+    mem->cells[addr] = value;
+}
+
+uint16_t readSupervisor(Memory* mem, uint16_t addr) {
+    return mem->cells[addr];
+}
+
+void writeSupervisor(Memory* mem, uint16_t addr, uint16_t value) {
+    mem->cells[addr] = value;
 }

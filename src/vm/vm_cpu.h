@@ -7,5 +7,5 @@
 struct VirtualMachine;
 typedef struct VirtualMachine VirtualMachine;
 
-VM_CPU* initCPU(void);
+VM_CPU* initVM_CPU();
 void runOperations(VirtualMachine* vm);

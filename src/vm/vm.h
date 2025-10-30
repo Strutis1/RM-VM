@@ -8,7 +8,7 @@
 #include "vm_memory.h"
 #include "vm_channel.h"
 
-typedef struct {
+typedef struct VirtualMachine {
     Channel*   channel;
     VM_MEMORY* memory;
     VM_CPU*    vm_cpu;

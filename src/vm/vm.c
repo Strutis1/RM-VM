@@ -11,8 +11,8 @@ VirtualMachine* createVM(Channel* channel) {
 
     vm->channel = channel;
     vm->memory  = VMinitMemory();
-    vm->vm_cpu = initCPU();
-
+    vm->vm_cpu  = initVM_CPU();
+    
     if (!vm->memory || !vm->vm_cpu) {
         free(vm);
         return NULL;
@@ -24,6 +24,5 @@ VirtualMachine* createVM(Channel* channel) {
     memcpy(vm->memory->memoryCells, bin, DISK_SECTOR_SIZE);
 
     runOperations(vm);
-
     return vm;
 }

@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-// ------------------ Please dont break the code under ------------------ \\
+// ------------------ Please dont break the code under ------------------
 
 #define DEFAULT_FNAME "default_log.log"
 
@@ -28,8 +28,8 @@ char writeDefaultBoth(const char* msg);
 extern char g_fname[17];
 extern char (*logFuncPtr)(const char*, const char*);
 
-char log(const char* msg);
+char _log(const char* msg);
 
+void generateConfig();
 
-
-// ------------------ Please dont break the code above ------------------ \\
+// ------------------ Please dont break the code above ------------------
