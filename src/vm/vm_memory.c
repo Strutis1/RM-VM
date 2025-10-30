@@ -43,7 +43,7 @@ char loadProgram(Instruction* ins, VM_MEMORY* mem) {
     return 0;
 }
 
-static inline char stuffInstruction16(Instruction *ins, uint16_t word) {
+static inline char stuffInstruction(Instruction *ins, uint16_t word) {
     if (!ins) return 5;
 
     ins->raw     = word;
