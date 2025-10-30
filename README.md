@@ -1,12 +1,12 @@
 # RM-VM
 
-Minimal “real machine” and a matching virtual machine implemented in C. The project includes source, headers, an `asm/` directory, a `bin/` output directory, and a small test suite. It’s set up with a `Makefile`. ([GitHub][1])
+Minimal “real machine” and a matching virtual machine implemented in C. The project includes source, headers, an `asm/` directory, a `bin/` output directory, and a small test suite. It’s set up with a `Makefile`. 
 
 ---
 
 ## Overview
 
-This repository models a simple hardware-like **Real Machine (RM)** and a software **Virtual Machine (VM)** that executes the same instruction set. The VM emulates the RM’s behavior for easier debugging and experimentation, while the RM version represents the “bare-metal” implementation path. Folder layout and languages are visible in the repo tree. ([GitHub][1])
+This repository models a simple hardware-like **Real Machine (RM)** and a software **Virtual Machine (VM)** that executes the same instruction set. The VM emulates the RM’s behavior for easier debugging and experimentation, while the RM version represents the “bare-metal” implementation path. Folder layout and languages are visible in the repo tree. 
 
 ---
 
@@ -21,7 +21,7 @@ rm_test/   ; sample programs / fixtures / scripts
 Makefile   ; build targets
 ```
 
-Folder names and presence are taken from the repository browser. ([GitHub][1])
+Folder names and presence are taken from the repository browser. 
 
 ---
 
@@ -47,7 +47,7 @@ make clean
 make debug
 ```
 
-(Exact target names depend on the `Makefile` in this repo.) ([GitHub][1])
+(Exact target names depend on the `Makefile` in this repo.) 
 
 ## Instruction set & I/O
 
@@ -79,11 +79,5 @@ Document here:
 ## License
 
 MIT License — fork, modify, and contribute freely.
-
----
-
-## Acknowledgments
-
-List collaborators and any sources/specs you mirrored. Contributors visible in the repo UI: `Strutis1`, `greycloudss`, `Gojus1`. ([GitHub][1])
 
 ---
