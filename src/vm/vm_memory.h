@@ -14,7 +14,6 @@ typedef struct {
 
 VM_MEMORY* VMinitMemory();
 
-// parses int64 and puts the corresponding hex thinggers into the instruction struct
-char stuffInstructions(Instruction* ins, const uint64_t insRegion);
-// loads the actual instructions into the memory
+
+static inline char stuffInstruction(Instruction *ins, uint16_t word);
 char loadProgram(Instruction* ins, VM_MEMORY* mem);

@@ -1,39 +1,42 @@
-CC = gcc
-CFLAGS = -O2 -Wall -Wextra -Iinclude
-SRC_DIR = src
-BUILD = build
-BIN = bin
+# Compiler & flags
+CC      := gcc
+CFLAGS  := -O2 -Wextra -Iinclude
 
-SOURCES := $(shell find $(SRC_DIR) -type f -name '*.c')
-APP_SOURCES := $(filter-out $(SRC_DIR)/compiler/%,$(SOURCES))
-COMPILER_SOURCES := $(filter $(SRC_DIR)/compiler/%,$(SOURCES))
+# Layout
+SRC_DIR := src
+BIN     := bin
 
-APP_OBJS := $(patsubst %.c,$(BUILD)/%.o,$(APP_SOURCES))
-COMPILER_OBJS := $(patsubst %.c,$(BUILD)/%.o,$(COMPILER_SOURCES))
+# Windows exe suffix if OS var is set (MSYS keeps this)
+ifeq ($(OS),Windows_NT)
+  EXE_EXT := .exe
+else
+  EXE_EXT :=
+endif
 
-TARGET_APP = $(BIN)/rmvm
-TARGET_COMPILER = $(BIN)/rmc
+# Source lists (no recursion; list subdirs explicitly)
+APP_SOURCES := \
+  $(wildcard $(SRC_DIR)/*.c) \
+  $(wildcard $(SRC_DIR)/rm/*.c) \
+  $(wildcard $(SRC_DIR)/utils/*.c) \
+  $(wildcard $(SRC_DIR)/vm/*.c)
+
+COMPILER_SOURCES := \
+  $(wildcard $(SRC_DIR)/compiler/*.c)
+
+# Targets
+TARGET_APP      := $(BIN)/rmvm$(EXE_EXT)
+TARGET_COMPILER := $(BIN)/rmc$(EXE_EXT)
 
 .PHONY: all clean
 all: $(TARGET_APP) $(TARGET_COMPILER)
 
-$(TARGET_APP): $(APP_OBJS)
-	@mkdir -p $(BIN)
-	$(CC) $(APP_OBJS) -o $@
-	@rm -f $(APP_OBJS) $(APP_OBJS:.o=.d)
-	@find $(BUILD) -type d -empty -delete
+$(TARGET_APP): $(APP_SOURCES)
+	@powershell -NoProfile -Command "New-Item -ItemType Directory -Force '$(BIN)'" >NUL
+	$(CC) $(CFLAGS) $(APP_SOURCES) -o $@
 
-$(TARGET_COMPILER): $(COMPILER_OBJS)
-	@mkdir -p $(BIN)
-	$(CC) $(COMPILER_OBJS) -o $@
-	@rm -f $(COMPILER_OBJS) $(COMPILER_OBJS:.o=.d)
-	@find $(BUILD) -type d -empty -delete
-
-$(BUILD)/%.o: %.c
-	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -MMD -MP -c $< -o $@
-
--include $(APP_OBJS:.o=.d) $(COMPILER_OBJS:.o=.d)
+$(TARGET_COMPILER): $(COMPILER_SOURCES)
+	@powershell -NoProfile -Command "New-Item -ItemType Directory -Force '$(BIN)'" >NUL
+	$(CC) $(CFLAGS) $(COMPILER_SOURCES) -o $@
 
 clean:
-	rm -rf $(BUILD) $(BIN)
+	@powershell -NoProfile -Command "If (Test-Path '$(BIN)') { Remove-Item -Recurse -Force '$(BIN)' }"

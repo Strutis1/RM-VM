@@ -17,17 +17,6 @@ VM_MEMORY* VMinitMemory() {
     return mem;
 }
 
-/*
-typedef struct {
-    uint8_t opcode;
-    uint8_t reg;
-    uint8_t mode;
-    uint16_t operand;
-    uint8_t length;
-    uint16_t raw;
-} Instruction;
-*/
-
 char loadProgram(Instruction* ins, VM_MEMORY* mem) {
     size_t pc = 0;
     for (int i = 0;; ++i) {
@@ -47,22 +36,24 @@ char loadProgram(Instruction* ins, VM_MEMORY* mem) {
     return 0;
 }
 
-char stuffInstructions(Instruction* ins, const uint64_t insRegion) {
-    ins->opcode  = (insRegion >> 56) & 0xFF;
-    if (ins->opcode > 0x10) return 1;
+static inline char stuffInstruction(Instruction *ins, uint16_t word) {
+    if (!ins) return 5;
 
-    ins->regA    = (insRegion >> 48) & 0xFF;
-    if (ins->regA > 0x06) return 2;
+    ins->raw     = word;
+    ins->opcode  = (word >> 12) & 0xF;
+    if (ins->opcode > 0xE) return 1;
 
-    ins->regB    = (insRegion >> 40) & 0xFF;
-    if (ins->regB > 0x06) return 3;
+    ins->regA    = (word >> 9) & 0x7;
+    if (ins->regA >= REG_COUNT) return 2;
 
-    ins->mode    = (insRegion >> 32) & 0xFF;
-    if (ins->mode > 0x04) return 4;
+    ins->regB    = (word >> 6) & 0x7;
+    if (ins->regB >= REG_COUNT) return 3;
 
-    ins->operand = (insRegion >> 16) & 0xFFFF;
-    ins->raw     = insRegion & 0xFFFF;
-    ins->length  = 8;
+    ins->mode    = (word >> 4) & 0x3;
+    if (ins->mode > 3) return 4;
+
+    ins->operand =  word        & 0xF;
+    ins->length  = 1;
 
     return 0;
 }
