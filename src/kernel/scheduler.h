@@ -49,7 +49,11 @@ typedef struct {
     Process* selfProc;
     Process* schedule[SCHEDULER_MAX_PRIORITY];
     unsigned short cycle;
+    int prio_min, prio_max;
+    unsigned char pid;
 } Scheduler;
 
-
 Scheduler* initScheduler();
+Process** initSchedule(Process* schedule[]);
+bool inline removeProcP(Scheduler* sch, unsigned char _pid);
+bool inline removeProcN(Scheduler* sch, const char* procName);

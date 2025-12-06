@@ -3,9 +3,9 @@
 
 Process** initSchedule(Process* sch[]) {
     if (!sch) return NULL;
-    for (int i = 0; i < SCHEDULER_MAX_PRIORITY; ++i) {
+    for (int i = 0; i < SCHEDULER_MAX_PRIORITY; ++i)
         sch[i] = NULL;
-    }
+    
     return sch;
 } 
 
@@ -26,5 +26,88 @@ Scheduler* initScheduler() {
     sched->selfProc = selfProc;
     sched->schedule[97] = selfProc;
     sched->cycle = 0;
+    sched->pid = 0;
+    sched->prio_max = 97;
+    sched->prio_min = 97;
     return sched;
+}
+
+bool inline addProc(Scheduler* sch, Process* proc) {
+    if (!sch || !proc) return false;
+
+    sch->pid++;
+    proc->pid = sch->pid;
+    if (proc->sysProc == true) {
+        if (sch->prio_min == sch->prio_max) {
+            sch->schedule[sch->prio_max - 1];
+            sch->prio_min -= 1;
+
+            return true;
+        }
+
+        for (int i = sch->prio_max; i >= 80; --i) {
+            if (sch->schedule[i] == NULL) {
+                sch->schedule[i] = proc;
+                
+                sch->prio_max = i > sch->prio_max ? i : sch->prio_max;
+                sch->prio_min = i < sch->prio_min ? i : sch->prio_min;
+                
+                return true;
+            }
+        }
+    }
+
+    for (int i = 79; i > 0; --i) {
+        if (sch->schedule[i] == NULL) {
+            sch->schedule[i] = proc;
+
+            sch->prio_min = i < sch->prio_min ? i : sch->prio_min;
+            
+            return true;
+        }
+    }
+}
+
+bool inline removeProcP(Scheduler* sch, unsigned char _pid) {
+    if (!sch || _pid == 0) return false;
+
+    for (int i = SCHEDULER_MIN_PRIORITY; i < SCHEDULER_MAX_PRIORITY; ++i) {
+        if (sch->schedule[i]->pid == _pid) {
+            sch->schedule[i] = NULL;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool inline removeProcN(Scheduler* sch, const char* procName) {
+    if (!sch || !procName) return false;
+
+    for (int i = SCHEDULER_MIN_PRIORITY; i < SCHEDULER_MAX_PRIORITY; ++i) {
+        if (strcmp(sch->schedule[i]->pname, procName) == 0) {
+            sch->schedule[i] = NULL;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void inline runCycle(Scheduler* sch) {
+    // ^ xor
+    int dispersion = sch->cycle == 1 ? 5 : 0;
+
+    switch(sch->cycle) {
+        case 0:     // sys procs only
+            break;
+
+        case 1:     // sys procs + dispersion
+            break;
+        
+        case 2:     // all of the procs;
+            break;
+    }
+
+    sch->cycle++;
+    if (sch->cycle > 2) sch->cycle = 0;
 }
