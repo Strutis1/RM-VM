@@ -1,5 +1,5 @@
 #include "scheduler.h"
-#include <stdlib.h>
+
 
 Process** initSchedule(Process* sch[]) {
     if (!sch) return NULL;

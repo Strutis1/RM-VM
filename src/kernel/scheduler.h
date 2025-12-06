@@ -30,6 +30,7 @@ how this could be done is by having an array of pointers, which would act as lab
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdlib.h>
 #include "../../include/common.h"
 
 #define SCHEDULER_MAX_PRIORITY 100
