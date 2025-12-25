@@ -40,12 +40,7 @@
 #include "vm_channel.h"
 
 typedef struct VirtualMachine {
-    Instruction* instructions;
-    ChannelDevice channel;
-// =======
-// typedef struct {
-//     Channel*   channel;
-// >>>>>>> 4104e68847041b9d8d6f1b8c3de28571f2adc05c
+    Channel*   channel;
     VM_MEMORY* memory;
     VM_CPU*    vm_cpu;
 } VirtualMachine;

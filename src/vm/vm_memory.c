@@ -1,5 +1,6 @@
 #include "vm_memory.h"
 
+#include <string.h>
 #include <memory.h>
 #include "../../include/common.h"
 #include "../../include/disk.h"

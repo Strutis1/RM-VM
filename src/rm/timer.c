@@ -5,6 +5,8 @@
 #include "../../include/interrupts.h"
 #include <stdlib.h>
 
+
+
 void initTimer(Timer *timer, uint16_t limit) {
     timer->counter = 0;
     timer->limit = limit;

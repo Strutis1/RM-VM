@@ -28,12 +28,5 @@ typedef struct {
 struct VirtualMachine;
 //typedef struct VirtualMachine VirtualMachine;
 
-VM_CPU* initVMCPU(void);
-void runOperations(struct VirtualMachine* vm);
-// =======
-// struct VirtualMachine;
-// typedef struct VirtualMachine VirtualMachine;
-
-// VM_CPU* initCPU(void);
-// void runOperations(VirtualMachine* vm);
-// >>>>>>> 4104e68847041b9d8d6f1b8c3de28571f2adc05c
+VM_CPU* initVM_CPU();
+void runOperations(VirtualMachine* vm);

@@ -53,7 +53,7 @@ char writeDefaultBoth(const char* msg) {
 }
 
 static char w_stdout(const char* s, const char* f) { return writeSTDOUT(s); }
-static char w_def_file(const char* s, const char* f) { return writeDefaultFPTR(s); }
+static char w_def_file(const char* s, const char* f) {return writeDefaultFPTR(s); }
 static char w_def_both(const char* s, const char* f) { return writeDefaultBoth(s); }
 static char w_file(const char* s, const char* f) { return writeFPTR(s,f); }
 static char w_both(const char* s, const char* f) { return writeBoth(s,f); }
@@ -61,7 +61,7 @@ static char w_both(const char* s, const char* f) { return writeBoth(s,f); }
 char g_fname[17] = DEFAULT_FNAME;
 char (*logFuncPtr)(const char*, const char*) = w_stdout;
 
-char logM(const char* msg) {
+char _log(const char* msg) {
     return logFuncPtr ? logFuncPtr(msg, g_fname) : 0;
 }
 
@@ -116,6 +116,6 @@ void generateConfig() {
     if(!read_name(g_fname)) {
         strncpy(g_fname, DEFAULT_FNAME, 16);
         g_fname[16] = '\0';
-        logM("[ERROR] [logMain] Going with default logging file\n");
+        _log("[ERROR] [logMain] Going with default logging file\n");
     }
 }

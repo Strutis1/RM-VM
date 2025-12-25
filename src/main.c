@@ -40,21 +40,11 @@
 // }
 #include "rm/rm.h"
 #include "utils/utils.h"
-#include <stdio.h>
-#include <stdlib.h>
 
-void generateConfig(void);
-
-// ───────────────────────────────────────────────
-// Optional startup configuration (placeholder)
-// ───────────────────────────────────────────────
-void onStartupPrompts(void) {
-    printf("[MAIN] Starting OS setup...\n");
-
-    // If you have a configuration generator, call it here:
+int onStartupPrompts() {
+    // do on startup commanding
     generateConfig();
 
-    printf("[MAIN] Configuration complete.\n");
 }
 
 // ───────────────────────────────────────────────
@@ -62,8 +52,8 @@ void onStartupPrompts(void) {
 // ───────────────────────────────────────────────
 int main(void) {
     onStartupPrompts();
-
-    logM("[MAIN] Starting Real Machine test...\n");
+    
+    log("[MAIN] Starting Real Machine test...\n");
 
     // Initialize all Real Machine components
     initRealMachine();
@@ -93,16 +83,9 @@ int main(void) {
     realCPU.MODE = MODE_SUPERVISOR; // allow privileged instructions
     realCPU.IC = 0;
 
-    logM("[MAIN] Running CPU cycle...\n");
+    log("[MAIN] Running CPU cycle...\n");
     execCycle();
 
-    logM("[MAIN] CPU execution complete.\n");
-    logM("[MAIN] Final Register Values:\n");
-    printf("  R0 = %u\n", realCPU.R[0]);
-    printf("  R1 = %u\n", realCPU.R[1]);
-    printf("  SF = 0x%X\n", realCPU.SF);
-    printf("  MODE = %s\n", (realCPU.MODE == MODE_SUPERVISOR) ? "Supervisor" : "User");
-
-    printf("\n[MAIN] Real Machine simulation finished successfully.\n");
+    log("[MAIN] Done. R0=%u, R1=%u\n", realCPU.R[0], realCPU.R[1]);
     return 0;
 }

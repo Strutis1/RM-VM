@@ -20,7 +20,7 @@ typedef struct {
 } HardDisk;
 
 extern HardDisk hardDisk;
-//static bool diskInitialized = false;
+extern bool diskInitialized;
 
 void initDisk(HardDisk *disk, uint8_t id);
 bool readDisk(HardDisk *disk, uint16_t sector, uint8_t *buffer);

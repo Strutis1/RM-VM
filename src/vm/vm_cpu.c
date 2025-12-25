@@ -24,11 +24,10 @@ void runOperations(VirtualMachine* vm) {
 
     printf("[VM] Beginning instruction execution...\n");
 
-    while (true) {
-        if (pc + 1 >= VM_MEMORY_SIZE) {
-            printf("[VM] Program counter out of range.\n");
-            break;
-        }
+VM_CPU* initVM_CPU() {
+    VM_CPU* c = (VM_CPU*)calloc(1, sizeof(VM_CPU));
+    return c;
+}
 
         // Fetch 16-bit instruction
         uint16_t raw = (mem->memoryCells[pc] << 8) | mem->memoryCells[pc + 1];

@@ -50,12 +50,10 @@ VirtualMachine* createVM(HardDisk* disk, Memory* rmMemory) {
     VirtualMachine* vm = (VirtualMachine*)malloc(sizeof(VirtualMachine));
     if (!vm) return NULL;
 
-    memset(vm, 0, sizeof(VirtualMachine));
-
-    vm->memory = VMinitMemory();
-    vm->vm_cpu = initVMCPU();
-    VMinitChannel(&vm->channel);
-
+    vm->channel = channel;
+    vm->memory  = VMinitMemory();
+    vm->vm_cpu  = initVM_CPU();
+    
     if (!vm->memory || !vm->vm_cpu) {
         printf("[VM] Memory or CPU initialization failed.\n");
         free(vm);
@@ -72,10 +70,7 @@ VirtualMachine* createVM(HardDisk* disk, Memory* rmMemory) {
         return NULL;
     }
 
-    // Copy data to VM memory (simple direct copy)
-    memcpy(vm->memory->memoryCells, buffer, DISK_SECTOR_SIZE);
-    printf("[VM] Program loaded successfully.\n");
-
+    runOperations(vm);
     return vm;
 }
 

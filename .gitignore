@@ -5,3 +5,6 @@
 *.d
 *.o
 /build
+NUL
+
+rm_test
