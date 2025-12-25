@@ -38,16 +38,25 @@ how this could be done is by having an array of pointers, which would act as lab
 #define SCHEDULER_MIN_PRIORITY 0
 
 
+// defining process states
+#define PROC_RUNNING 0
+#define PROC_BLOCK 1
+#define PROC_READY 2
+#define PROC_SUSP_BLOCK 3
+#define PROC_SUSP_READY 4
+
 
 typedef struct {
     unsigned char pid;
     bool sysProc; // would usually say that should use char but idfk
     const char* pname;
 
+    char state; //small size, ergonomic and we only need a few states anyway
+
     int (*fptr)(void); 
 } Process;
 
-
+Process* initProcess(unsigned char pid, bool sysProc, const char* processName, int (*fptr)(void));
 
 typedef struct {
     Process* selfProc;

@@ -1,6 +1,15 @@
 #include "scheduler.h"
 
 
+// process internals
+Process* initProcess(unsigned char pid, bool sysProc, const char* processName, int (*fptr)(void)) {
+    Process* tmp = { pid, sysProc, processName, PROC_RUNNING, fptr};
+    // will probably need to do some stuff here or chain functions when using to init -> add to schedule :)
+    return tmp;
+}
+
+
+// scheduler internals
 Process** initSchedule(Process* sch[]) {
     if (!sch) return NULL;
     for (int i = 0; i < SCHEDULER_MAX_PRIORITY; ++i)
@@ -120,15 +129,24 @@ void inline dispersedSysCycle(Scheduler* sch) {
 }
 
 void inline fullCycle(Scheduler* sch) {
-    templateCycle(sch->schedule, sch->prio_min, sch->prio_max, 80)
+    templateCycle(sch->schedule, sch->prio_min, sch->prio_max, 80);
 }
 
 void inline runCycle(Scheduler* sch) {
     int dispersion = sch->cycle == 1 ? 5 : 0;
     
-
-    for (int i = sch->prio_max; i >= sch->prio_min; --i) {
-        fptr(
+    switch(sch->cycle) {
+        case 0:
+            sysCycle(sch);
+            break;
+        case 1:
+            dispersedSysCycle(sch);
+            break;
+        case 2:
+            fullCycle(sch);
+            break;
+        default:
+            _log("[SCHEDULER] cycle misaligned\n");
     }
 
     sch->cycle++;
