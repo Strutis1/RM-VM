@@ -50,7 +50,7 @@ VirtualMachine* createVM(HardDisk* disk, Memory* rmMemory) {
     VirtualMachine* vm = (VirtualMachine*)malloc(sizeof(VirtualMachine));
     if (!vm) return NULL;
 
-    vm->channel = channel;
+    vm->channel = initChannel();
     vm->memory  = VMinitMemory();
     vm->vm_cpu  = initVM_CPU();
     

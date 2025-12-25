@@ -24,11 +24,7 @@ void runOperations(VirtualMachine* vm) {
 
     printf("[VM] Beginning instruction execution...\n");
 
-VM_CPU* initVM_CPU() {
-    VM_CPU* c = (VM_CPU*)calloc(1, sizeof(VM_CPU));
-    return c;
-}
-
+    while (1) {
         // Fetch 16-bit instruction
         uint16_t raw = (mem->memoryCells[pc] << 8) | mem->memoryCells[pc + 1];
         pc += 2;
