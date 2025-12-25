@@ -93,21 +93,45 @@ bool inline removeProcN(Scheduler* sch, const char* procName) {
     return false;
 }
 
+
+void inline templateCycle(const Process* schedule, int prio_min, int prio_max, int dispersion) {
+    int _dispersion = dispersion < 0 ? 0 : dispersion;
+    
+    // i dont remember what i was cooking here,
+    // check dispersions and docs later
+    // cooking or smoking is also a great answer i am yet to answer...
+
+    if (prio_min - dispersion <= 0) {
+        _log("[Error] bad dispersion: proceeding with 0\n");
+        _dispersion = 0;
+    }
+
+    for (int i = prio_max; i >= prio_min - _dispersion; --i)
+        schedule[i].fptr();
+    
+}
+
+void inline sysCycle(Scheduler* sch) {
+    templateCycle(sch->schedule, sch->prio_min, sch->prio_max, 0);
+}
+
+void inline dispersedSysCycle(Scheduler* sch) {
+    templateCycle(sch->schedule, sch->prio_min, sch->prio_max, 5);
+}
+
+void inline fullCycle(Scheduler* sch) {
+    templateCycle(sch->schedule, sch->prio_min, sch->prio_max, 80)
+}
+
 void inline runCycle(Scheduler* sch) {
-    // ^ xor
     int dispersion = sch->cycle == 1 ? 5 : 0;
+    
 
-    switch(sch->cycle) {
-        case 0:     // sys procs only
-            break;
-
-        case 1:     // sys procs + dispersion
-            break;
-        
-        case 2:     // all of the procs;
-            break;
+    for (int i = sch->prio_max; i >= sch->prio_min; --i) {
+        fptr(
     }
 
     sch->cycle++;
     if (sch->cycle > 2) sch->cycle = 0;
 }
+

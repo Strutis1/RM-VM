@@ -32,6 +32,7 @@ how this could be done is by having an array of pointers, which would act as lab
 #include <string.h>
 #include <stdlib.h>
 #include "../../include/common.h"
+#include "../utils/utils.h"
 
 #define SCHEDULER_MAX_PRIORITY 100
 #define SCHEDULER_MIN_PRIORITY 0
@@ -40,8 +41,10 @@ how this could be done is by having an array of pointers, which would act as lab
 
 typedef struct {
     unsigned char pid;
-    bool sysProc;
+    bool sysProc; // would usually say that should use char but idfk
     const char* pname;
+
+    int (*fptr)(void); 
 } Process;
 
 
