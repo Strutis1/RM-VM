@@ -120,16 +120,24 @@ void inline templateCycle(const Process* schedule, int prio_min, int prio_max, i
     
 }
 
+// cycle wrappers
+
 void inline sysCycle(Scheduler* sch) {
+    _log("[SCHEDULER] running cycle: 0\n");
     templateCycle(sch->schedule, sch->prio_min, sch->prio_max, 0);
+    _log("[SCHEDULER] system cycle finished\n");
 }
 
 void inline dispersedSysCycle(Scheduler* sch) {
+    _log("[SCHEDULER] running cycle: 1\n");
     templateCycle(sch->schedule, sch->prio_min, sch->prio_max, 5);
+    _log("[SCHEDULER] dispersion cycle finished\n");
 }
 
 void inline fullCycle(Scheduler* sch) {
+    _log("[SCHEDULER] running cycle: 3\n");
     templateCycle(sch->schedule, sch->prio_min, sch->prio_max, 80);
+    _log("[SCHEDULER] full cycle finished\n");
 }
 
 void inline runCycle(Scheduler* sch) {
@@ -152,4 +160,3 @@ void inline runCycle(Scheduler* sch) {
     sch->cycle++;
     if (sch->cycle > 2) sch->cycle = 0;
 }
-
