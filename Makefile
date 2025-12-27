@@ -18,6 +18,7 @@ endif
 # Add or remove subfolders here if your tree changes.
 APP_SOURCES := \
   $(wildcard $(SRC_DIR)/*.c) \
+  $(wildcard $(SRC_DIR)/kernel/*.c) \
   $(wildcard $(SRC_DIR)/rm/*.c) \
   $(wildcard $(SRC_DIR)/utils/*.c) \
   $(wildcard $(SRC_DIR)/vm/*.c)
