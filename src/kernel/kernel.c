@@ -12,36 +12,45 @@ int kernelHandleInterrupts(Kernel* k) {
         raiseTimerInterrupt(TI_EXPIRED);
     }
 
-    if (cpu->SI == SI_HALT) {
-        _log("[KERNEL] HALT interrupt received. Stopping CPU.\n");
-        return 0;
+    switch (cpu->SI) {
+        case SI_HALT:
+            _log("[KERNEL] HALT interrupt received. Stopping CPU.\n");
+            return 0;
+        case SI_READ:
+            _log("[KERNEL] READ interrupt acknowledged.\n");
+            cpu->SI = SI_NONE;
+            break;
+        case SI_WRITE:
+            _log("[KERNEL] WRITE interrupt acknowledged.\n");
+            cpu->SI = SI_NONE;
+            break;
+        case SI_SYS:
+            _log("[KERNEL] SYS interrupt acknowledged.\n");
+            cpu->SI = SI_NONE;
+            break;
+        default:
+            break;
     }
 
-    if (cpu->SI == SI_READ) {
-        _log("[KERNEL] READ interrupt acknowledged.\n");
-        cpu->SI = SI_NONE;
+    switch (cpu->PI) {
+        case PI_NONE:
+            break;
+        default: {
+            char buf[64];
+            snprintf(buf, sizeof(buf), "[KERNEL] Program interrupt (code %u)\n", cpu->PI);
+            _log(buf);
+            cpu->PI = PI_NONE;
+            break;
+        }
     }
 
-    if (cpu->SI == SI_WRITE) {
-        _log("[KERNEL] WRITE interrupt acknowledged.\n");
-        cpu->SI = SI_NONE;
-    }
-
-    if (cpu->SI == SI_SYS) {
-        _log("[KERNEL] SYS interrupt acknowledged.\n");
-        cpu->SI = SI_NONE;
-    }
-
-    if (cpu->PI != PI_NONE) {
-        char buf[64];
-        snprintf(buf, sizeof(buf), "[KERNEL] Program interrupt (code %u)\n", cpu->PI);
-        _log(buf);
-        cpu->PI = PI_NONE;
-    }
-
-    if (cpu->TI != TI_NONE) {
-        _log("[KERNEL] Timer interrupt acknowledged.\n");
-        cpu->TI = TI_NONE;
+    switch (cpu->TI) {
+        case TI_NONE:
+            break;
+        default:
+            _log("[KERNEL] Timer interrupt acknowledged.\n");
+            cpu->TI = TI_NONE;
+            break;
     }
 
     return 1;
