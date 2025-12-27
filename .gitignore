@@ -5,6 +5,7 @@
 *.d
 *.o
 /build
+/bin
 NUL
 *.log
 rm_test
