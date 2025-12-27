@@ -13,7 +13,7 @@
 #include <stdbool.h>
 
 
-void raiseProgramInterrupt(uint16_t code);
+//void raiseProgramInterrupt(uint16_t code);
 
 void initCPU(CPU *cpu);
 

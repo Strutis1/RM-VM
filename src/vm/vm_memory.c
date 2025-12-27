@@ -9,9 +9,13 @@
 
 
 VM_MEMORY* VMinitMemory() {
-    VM_MEMORY* abc;
-    memset(abc->memoryCells, 0x00, VM_MEMORY_SIZE);
-    return abc;
+    // VM_MEMORY* abc;
+    // memset(abc->memoryCells, 0x00, VM_MEMORY_SIZE);
+    // return abc;
+    VM_MEMORY* mem = malloc(sizeof(VM_MEMORY));
+    if (!mem) return NULL;
+    memset(mem->memoryCells, 0, sizeof(mem->memoryCells));
+    return mem;
 }
 
 char loadProgram(Instruction* ins, VM_MEMORY* mem) {

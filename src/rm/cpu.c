@@ -18,23 +18,6 @@ void initCPU(CPU *cpu){
     cpu->PTR = PTR_START;
 }
 
-//started with interrupt handling but someone else started it
-void raiseProgramInterrupt(uint16_t code) {
-    switch (code) {
-        case PI_NONE:
-        case PI_INVALID_OPCODE:
-        case PI_INVALID_ADDRESS:
-        case PI_INVALID_REGISTER:
-        case PI_DIVZERO:
-        case PI_OVERFLOW:
-            realCPU.PI = code;
-            break;
-        default:
-            break;
-    }
-}
-
-
 bool interrupted(){
     if(realCPU.PI != PI_NONE || realCPU.SI != SI_NONE || realCPU.TI != TI_NONE)
         return true;

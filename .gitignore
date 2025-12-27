@@ -6,5 +6,5 @@
 *.o
 /build
 NUL
-
+*.log
 rm_test

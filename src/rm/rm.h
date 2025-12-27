@@ -11,6 +11,7 @@
 #include "cpu.h"
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../vm/vm.h"
 
 bool initKernel(Memory* mem, CPU* cpu, HardDisk* hard);
 void initRealMachine(void);
