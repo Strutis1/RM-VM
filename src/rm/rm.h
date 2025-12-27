@@ -12,4 +12,5 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-void initRealMachine();
+bool initKernel(Memory* mem, CPU* cpu, HardDisk* hard);
+void initRealMachine(void);

@@ -51,7 +51,7 @@ typedef struct {
     bool sysProc; // would usually say that should use char but idfk
     const char* pname;
 
-    char state; //small size, ergonomic and we only need a few states anyway
+    unsigned char state; //small size, ergonomic and we only need a few states anyway
 
     int (*fptr)(void); 
 } Process;
@@ -66,7 +66,7 @@ typedef struct {
     unsigned char pid;
 } Scheduler;
 
-Scheduler* initScheduler();
 Process** initSchedule(Process* schedule[]);
 bool inline removeProcP(Scheduler* sch, unsigned char _pid);
 bool inline removeProcN(Scheduler* sch, const char* procName);
+Scheduler* initScheduler();

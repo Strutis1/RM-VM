@@ -1,17 +1,30 @@
 #include "rm.h"
+#include "../utils/utils.h"
 
 Memory physicalMemory;
 CPU realCPU;
 HardDisk hardDisk;
+Timer systemTimer;
 
+bool initKernel(Memory* mem, CPU* cpu, HardDisk* hard) {
+    if (!mem || !cpu || !hard) return false;
 
-void initRealMachine(void) {
-    printf("[RM] Initializing Real Machine...\n");
+    RMinitMemory(mem);
+    initCPU(cpu);
+    clearAllInterrupts();
 
-    RMinitMemory(&physicalMemory);
-    initCPU(&realCPU);
-    initDisk(&hardDisk, 0);
+    initDisk(hard, 0);
+    initTimer(&systemTimer, TICK_LIMIT);
     IOinit();
 
-    printf("[RM] Initialization complete.\n");
+    return true;
+}
+
+void initRealMachine(void) {
+    _log("[RM] Initializing Real Machine...\n");
+
+    if (initKernel(&physicalMemory, &realCPU, &hardDisk))
+        _log("[RM] Initialization complete.\n");
+    else
+        _log("[RM] Initialization failed.\n");
 }
