@@ -18,7 +18,7 @@ void RMinitMemory(Memory *mem){
 }
 
 void write(Memory *mem, uint16_t address, uint16_t value){
-    if(address >= USER_MEMORY_START && address <= USER_MEMORY_END){
+    if(address <= USER_MEMORY_END){
         mem->cells[address] = value;
     }else if(address >= SUPERVISOR_MEMORY_START && address <= SUPERVISOR_MEMORY_END){
         if(realCPU.MODE == MODE_SUPERVISOR){
@@ -33,7 +33,7 @@ void write(Memory *mem, uint16_t address, uint16_t value){
 
 
 uint16_t read(Memory *mem, uint16_t address){
-    if(address >= USER_MEMORY_START && address <= USER_MEMORY_END){
+    if(address <= USER_MEMORY_END){
         return mem->cells[address];
     }else if(address >= SUPERVISOR_MEMORY_START && address <= SUPERVISOR_MEMORY_END){
         if(realCPU.MODE == MODE_SUPERVISOR){

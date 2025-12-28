@@ -11,8 +11,7 @@ static inline uint16_t read_le16(const uint8_t *buf, size_t byteIndex) {
 }
 
 static inline bool address_fits(uint16_t loadAddress, uint16_t wordCount) {
-    return loadAddress >= USER_MEMORY_START &&
-           (uint32_t)loadAddress + (uint32_t)wordCount <= (uint32_t)USER_MEMORY_END + 1;
+    return (uint32_t)loadAddress + (uint32_t)wordCount <= (uint32_t)USER_MEMORY_END + 1;
 }
 
 bool loadProgramImage(HardDisk *disk, Memory *mem, CPU *cpu, uint16_t startSector, uint16_t loadAddress, LoadResult *out) {

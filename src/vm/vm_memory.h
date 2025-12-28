@@ -13,7 +13,4 @@ typedef struct {
 
 
 VM_MEMORY* VMinitMemory();
-
-
-static char stuffInstruction(Instruction *ins, uint16_t word);
 char loadProgram(Instruction* ins, VM_MEMORY* mem);

@@ -36,41 +36,69 @@
 
 #include "vm.h"
 #include "vm_channel.h"
+#include "vm_program.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+
+static size_t loadDiskProgram(HardDisk* disk, VM_MEMORY* mem, uint16_t startSector) {
+    if (!disk || !mem) return 0;
+
+    size_t offset = 0;
+    uint8_t buffer[DISK_SECTOR_SIZE];
+
+    for (uint16_t sector = startSector;
+         sector < DISK_SECTOR_COUNT && offset < VM_MEMORY_SIZE;
+         ++sector) {
+        if (!readDisk(disk, sector, buffer)) break;
+
+        size_t copyLen = VM_MEMORY_SIZE - offset;
+        if (copyLen > DISK_SECTOR_SIZE) copyLen = DISK_SECTOR_SIZE;
+
+        memcpy(mem->memoryCells + offset, buffer, copyLen);
+        offset += copyLen;
+
+        if (copyLen < DISK_SECTOR_SIZE) break; // memory full
+    }
+
+    return offset;
+}
 
 VirtualMachine* createVM(HardDisk* disk, Memory* rmMemory) {
     if (!disk || !rmMemory) {
         printf("[VM] Invalid disk or RM memory pointer.\n");
         return NULL;
     }
+    (void)rmMemory; // rmMemory reserved for future integration with RM memory
 
 
-    VirtualMachine* vm = (VirtualMachine*)malloc(sizeof(VirtualMachine));
+    VirtualMachine* vm = (VirtualMachine*)calloc(1, sizeof(VirtualMachine));
     if (!vm) return NULL;
 
 
     vm->memory  = VMinitMemory();
     vm->vm_cpu  = initVM_CPU();
-    VMinitChannel(&vm->channel);
+    vm->channel = (ChannelDevice*)calloc(1, sizeof(ChannelDevice));
+    if (vm->channel) VMinitChannel(vm->channel);
 
-    
-    if (!vm->memory || !vm->vm_cpu) {
-        printf("[VM] Memory or CPU initialization failed.\n");
-        free(vm);
+    if (!vm->memory || !vm->vm_cpu || !vm->channel) {
+        printf("[VM] Memory, CPU, or channel initialization failed.\n");
+        destroyVM(vm);
         return NULL;
     }
 
     printf("[VM] Loading program from disk into VM memory...\n");
 
-    // Load first few sectors into VM memory as program
-    uint8_t buffer[DISK_SECTOR_SIZE];
-    if (!readDisk(disk, 0, buffer)) {
-        printf("[VM] Failed to read from disk.\n");
+    size_t loaded = loadDiskProgram(disk, vm->memory, 0);
+    if (loaded == 0) {
+        printf("[VM] Failed to load any bytes from disk.\n");
         destroyVM(vm);
         return NULL;
     }
+
+    vm->vm_cpu->PC = 0;
+
+    printf("[VM] Loaded %zu bytes into VM memory.\n", loaded);
 
     return vm;
 }
@@ -80,6 +108,7 @@ void destroyVM(VirtualMachine* vm) {
     if (vm->instructions) free(vm->instructions);
     if (vm->memory) free(vm->memory);
     if (vm->vm_cpu) free(vm->vm_cpu);
+    if (vm->channel) free(vm->channel);
     free(vm);
     printf("[VM] Destroyed.\n");
 }

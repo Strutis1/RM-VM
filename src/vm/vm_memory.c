@@ -2,6 +2,7 @@
 
 #include <string.h>
 #include <memory.h>
+#include <stdlib.h>
 #include "../../include/common.h"
 #include "../../include/disk.h"
 #include "../../include/instructions.h"

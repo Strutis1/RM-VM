@@ -1,6 +1,7 @@
 #include "vm_cpu.h"
 #include "vm.h"
 #include "vm_memory.h"
+#include "vm_program.h"
 #include <stdlib.h>
 #include <string.h>
 

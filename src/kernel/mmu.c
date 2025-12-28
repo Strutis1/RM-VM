@@ -15,7 +15,7 @@ uint16_t mmuTranslate(uint16_t virtualAddr, CPU* cpu, Memory* mem) {
         return INVALID_PAGE;
     }
 
-    return (pte.frame * PAGE_SIZE) + offset;
+    return (pte.frame * MMU_PAGE_SIZE) + offset;
 }
 
 void initPageTable(CPU* cpu, Memory* mem, uint16_t ptAddr) {
@@ -23,23 +23,9 @@ void initPageTable(CPU* cpu, Memory* mem, uint16_t ptAddr) {
 
     PageTableEntry* pt = (PageTableEntry*)&mem->cells[ptAddr];
 
-    for (int i = 0; i < PAGE_COUNT; ++i) {
+    for (int i = 0; i < MMU_PAGE_COUNT; ++i) {
         pt[i].frame = i;
         pt[i].present = true;
         pt[i].writable = true;
     }
-}
-
-
-//NUKE IF ALREADY PRESSENT
-uint16_t read(Memory* mem, uint16_t vaddr) {
-    uint16_t paddr = mmuTranslate(vaddr, &realCPU, mem);
-    if (paddr == INVALID_PAGE) return 0;
-    return mem->cells[paddr];
-}
-
-void write(Memory* mem, uint16_t vaddr, uint16_t value) {
-    uint16_t paddr = mmuTranslate(vaddr, &realCPU, mem);
-    if (paddr == INVALID_PAGE) return;
-    mem->cells[paddr] = value;
 }

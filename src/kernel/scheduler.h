@@ -27,8 +27,6 @@ how this could be done is by having an array of pointers, which would act as lab
 
 #pragma once
 
-#include "context_switcher.h"
-
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
@@ -46,6 +44,18 @@ how this could be done is by having an array of pointers, which would act as lab
 #define PROC_READY 2
 #define PROC_SUSP_BLOCK 3
 #define PROC_SUSP_READY 4
+
+
+typedef struct {
+    uint16_t IC;
+    uint16_t R[REG_COUNT];
+    uint16_t SF;
+    uint16_t PTR;
+    uint16_t MODE;
+    uint16_t PI;
+    uint16_t SI;
+    uint16_t TI;
+} CPUContext;
 
 
 typedef struct {
@@ -72,6 +82,6 @@ typedef struct {
 } Scheduler;
 
 Process** initSchedule(Process* schedule[]);
-bool inline removeProcP(Scheduler* sch, unsigned char _pid);
-bool inline removeProcN(Scheduler* sch, const char* procName);
+bool removeProcP(Scheduler* sch, unsigned char _pid);
+bool removeProcN(Scheduler* sch, const char* procName);
 Scheduler* initScheduler();
