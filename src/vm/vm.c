@@ -37,6 +37,7 @@
 #include "vm.h"
 #include "vm_channel.h"
 #include "vm_program.h"
+#include "../utils/utils.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -66,7 +67,7 @@ static size_t loadDiskProgram(HardDisk* disk, VM_MEMORY* mem, uint16_t startSect
 
 VirtualMachine* createVM(HardDisk* disk, Memory* rmMemory) {
     if (!disk || !rmMemory) {
-        printf("[VM] Invalid disk or RM memory pointer.\n");
+        _log("[VM] Invalid disk or RM memory pointer.\n");
         return NULL;
     }
     (void)rmMemory; // rmMemory reserved for future integration with RM memory
@@ -82,23 +83,25 @@ VirtualMachine* createVM(HardDisk* disk, Memory* rmMemory) {
     if (vm->channel) VMinitChannel(vm->channel);
 
     if (!vm->memory || !vm->vm_cpu || !vm->channel) {
-        printf("[VM] Memory, CPU, or channel initialization failed.\n");
+        _log("[VM] Memory, CPU, or channel initialization failed.\n");
         destroyVM(vm);
         return NULL;
     }
 
-    printf("[VM] Loading program from disk into VM memory...\n");
+    _log("[VM] Loading program from disk into VM memory...\n");
 
     size_t loaded = loadDiskProgram(disk, vm->memory, 0);
     if (loaded == 0) {
-        printf("[VM] Failed to load any bytes from disk.\n");
+        _log("[VM] Failed to load any bytes from disk.\n");
         destroyVM(vm);
         return NULL;
     }
 
     vm->vm_cpu->PC = 0;
 
-    printf("[VM] Loaded %zu bytes into VM memory.\n", loaded);
+    char buf[64];
+    snprintf(buf, sizeof(buf), "[VM] Loaded %zu bytes into VM memory.\n", loaded);
+    _log(buf);
 
     return vm;
 }
@@ -110,16 +113,16 @@ void destroyVM(VirtualMachine* vm) {
     if (vm->vm_cpu) free(vm->vm_cpu);
     if (vm->channel) free(vm->channel);
     free(vm);
-    printf("[VM] Destroyed.\n");
+    _log("[VM] Destroyed.\n");
 }
 
 void runVM(VirtualMachine* vm) {
     if (!vm || !vm->memory || !vm->vm_cpu) {
-        printf("[VM] Invalid VM state.\n");
+        _log("[VM] Invalid VM state.\n");
         return;
     }
 
-    printf("[VM] Starting execution...\n");
+    _log("[VM] Starting execution...\n");
 
     // Simple pseudo loop for demonstration
     uint16_t pc = 0;
@@ -130,19 +133,23 @@ void runVM(VirtualMachine* vm) {
 
         Instruction inst;
         if (executeInstruction(&inst, raw) != 0) {
-            printf("[VM] Invalid instruction at %u (0x%04X)\n", pc, raw);
+            char buf[80];
+            snprintf(buf, sizeof(buf), "[VM] Invalid instruction at %u (0x%04X)\n", pc, raw);
+            _log(buf);
             break;
         }
 
-        printf("[VM] Executing opcode 0x%X (PC=%u)\n", inst.opcode, pc);
+        char buf[80];
+        snprintf(buf, sizeof(buf), "[VM] Executing opcode 0x%X (PC=%u)\n", inst.opcode, pc);
+        _log(buf);
 
         if (inst.opcode == OP_HALT) {
-            printf("[VM] HALT reached. Stopping.\n");
+            _log("[VM] HALT reached. Stopping.\n");
             break;
         }
     }
 
-    printf("[VM] Execution complete.\n");
+    _log("[VM] Execution complete.\n");
 }
 
 void loadDemoProgram(void) {
@@ -157,7 +164,7 @@ void loadDemoProgram(void) {
     memcpy(buffer, program, sizeof(program));
    // writeDisk(&hardDisk, 0, buffer); //I think this breaks something
 
-    printf("[RM] Demo program written to disk sector 0.\n");
+    _log("[RM] Demo program written to disk sector 0.\n");
 }
 // =======
 // #include "vm.h"

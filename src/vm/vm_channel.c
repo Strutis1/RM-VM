@@ -16,6 +16,7 @@
 //     return NULL;
 // }
 #include "vm_channel.h"
+#include "../utils/utils.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -41,40 +42,47 @@ bool VMchannelXCHG(ChannelDevice *channel, Memory *mem, HardDisk *disk, CPU *cpu
     channel->COUNT = count;
     channel->busy = true;
 
-    printf("[VM:Channel] XCHG src=%d dst=%d sb=%d db=%d count=%d\n", src, dst, sb, db, count);
+    char buf[128];
+    snprintf(buf, sizeof(buf), "[VM:Channel] XCHG src=%d dst=%d sb=%d db=%d count=%d\n",
+             src, dst, sb, db, count);
+    _log(buf);
 
     // emulate the same XCHG logic as RM
     bool ok = channelXCHG(channel, mem, disk, cpu);
     if (!ok) {
-        printf("[VM:Channel] XCHG failed\n");
+        _log("[VM:Channel] XCHG failed\n");
         channel->busy = false;
         return false;
     }
 
     channel->busy = false;
-    printf("[VM:Channel] XCHG complete\n");
+    _log("[VM:Channel] XCHG complete\n");
     return true;
 }
 
 bool VMwriteChannel(ChannelDevice *channel, const uint8_t *data, uint16_t len) {
     if (!channel || !data || len == 0) return false;
-    printf("[VM:Channel] Writing %u bytes via channel...\n", len);
+    char buf[64];
+    snprintf(buf, sizeof(buf), "[VM:Channel] Writing %u bytes via channel...\n", len);
+    _log(buf);
     for (uint16_t i = 0; i < len; i++) {
         putchar(data[i]);
     }
-    printf("\n[VM:Channel] Write complete.\n");
+    _log("\n[VM:Channel] Write complete.\n");
     return true;
 }
 
 bool VMreadChannel(ChannelDevice *channel, uint8_t *data, uint16_t len) {
     if (!channel || !data || len == 0) return false;
-    printf("[VM:Channel] Reading %u bytes from input:\n", len);
+    char buf[64];
+    snprintf(buf, sizeof(buf), "[VM:Channel] Reading %u bytes from input:\n", len);
+    _log(buf);
     for (uint16_t i = 0; i < len; i++) {
         int ch = getchar();
         if (ch == EOF) return false;
         data[i] = (uint8_t)ch;
     }
-    printf("[VM:Channel] Read complete.\n");
+    _log("[VM:Channel] Read complete.\n");
     return true;
 }
 // =======

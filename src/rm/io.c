@@ -3,6 +3,7 @@
 #include "../../include/interrupts.h"
 #include "../../include/registers.h"
 #include "../../include/memory.h"
+#include "../utils/utils.h"
 #include <stdbool.h>
 #include <stdio.h>
 
@@ -24,7 +25,7 @@ void IOinit(void) {
         initDisk(&hardDisk, 0);
         initChannelDevice(&diskChannel);
         diskInitialized = true;
-        printf("[IO] Disk and channel initialized.\n");
+        _log("[IO] Disk and channel initialized.\n");
     }
 }
 
@@ -41,12 +42,16 @@ bool IOread(uint16_t sector, uint16_t destAddr, uint16_t count) {
 
     bool ok = channelXCHG(&diskChannel, &physicalMemory, &hardDisk, &realCPU);
     if (!ok) {
-        printf("[IO] Failed to read sector %u\n", sector);
+        char buf[64];
+        snprintf(buf, sizeof(buf), "[IO] Failed to read sector %u\n", sector);
+        _log(buf);
         return false;
     }
 
     raiseSystemInterrupt(SI_READ);
-    printf("[IO] Sector %u read complete, SI_READ interrupt raised.\n", sector);
+    char buf[96];
+    snprintf(buf, sizeof(buf), "[IO] Sector %u read complete, SI_READ interrupt raised.\n", sector);
+    _log(buf);
     return true;
 }
 
@@ -64,12 +69,16 @@ bool IOwrite(uint16_t sector, uint16_t srcAddr, uint16_t count) {
 
     bool ok = channelXCHG(&diskChannel, &physicalMemory, &hardDisk, &realCPU);
     if (!ok) {
-        printf("[IO] Failed to write sector %u\n", sector);
+        char buf[64];
+        snprintf(buf, sizeof(buf), "[IO] Failed to write sector %u\n", sector);
+        _log(buf);
         return false;
     }
 
     raiseSystemInterrupt(SI_WRITE);
-    printf("[IO] Sector %u write complete, SI_WRITE interrupt raised.\n", sector);
+    char buf[96];
+    snprintf(buf, sizeof(buf), "[IO] Sector %u write complete, SI_WRITE interrupt raised.\n", sector);
+    _log(buf);
     return true;
 }
 
@@ -77,7 +86,9 @@ bool IOwrite(uint16_t sector, uint16_t srcAddr, uint16_t count) {
 void IOcheckInterrupts(void) {
     if (diskChannel.busy) return;
     if (realCPU.SI != SI_NONE) {
-        printf("[IO] Handling I/O interrupt SI=%u\n", realCPU.SI);
+        char buf[64];
+        snprintf(buf, sizeof(buf), "[IO] Handling I/O interrupt SI=%u\n", realCPU.SI);
+        _log(buf);
         realCPU.SI = SI_NONE;
     }
 }

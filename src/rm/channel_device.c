@@ -1,5 +1,6 @@
 #include "../../include/channel_device.h"
 #include "../../include/disk.h"
+#include "../utils/utils.h"
 
 #include <stdio.h>
 
@@ -27,8 +28,11 @@ bool channelXCHG(ChannelDevice *channel, Memory *mem, HardDisk *disk, CPU *cpu) 
     if (!channel || !mem) return false;
     channel->busy = true;
 
-    printf("[Channel] XCHG start: ST=%d SB=%d -> DT=%d DB=%d (%d words)\n",
-           channel->ST, channel->SB, channel->DT, channel->DB, channel->COUNT);
+    char buf[128];
+    snprintf(buf, sizeof(buf),
+             "[Channel] XCHG start: ST=%d SB=%d -> DT=%d DB=%d (%d words)\n",
+             channel->ST, channel->SB, channel->DT, channel->DB, channel->COUNT);
+    _log(buf);
 
     switch (channel->ST) {
         case CH_SRC_USER_MEM:
@@ -36,8 +40,10 @@ bool channelXCHG(ChannelDevice *channel, Memory *mem, HardDisk *disk, CPU *cpu) 
                 for (uint16_t i = 0; i < channel->COUNT; ++i)
                     writeSupervisor(mem, channel->DB + i, readUser(mem, channel->SB + i));
             } else if (channel->DT == CH_DST_IO) {
-                for (uint16_t i = 0; i < channel->COUNT; ++i)
-                    printf("[I/O OUT] %04X\n", readUser(mem, channel->SB + i));
+                for (uint16_t i = 0; i < channel->COUNT; ++i) {
+                    snprintf(buf, sizeof(buf), "[I/O OUT] %04X\n", readUser(mem, channel->SB + i));
+                    _log(buf);
+                }
                 cpu->SI = SI_WRITE;
             }
             break;
@@ -59,27 +65,30 @@ bool channelXCHG(ChannelDevice *channel, Memory *mem, HardDisk *disk, CPU *cpu) 
 
         case CH_SRC_IO:
             if (channel->DT == CH_DST_CPU_REG) {
-                printf("[I/O IN] Enter value (hex): ");
+                _log("[I/O IN] Enter value (hex): ");
                 scanf("%hx", &cpu->R[0]);
                 cpu->SI = SI_READ;
             }
             break;
 
         default:
-            printf("[Channel] Invalid source type!\n");
+            _log("[Channel] Invalid source type!\n");
             cpu->PI = PI_INVALID_ADDRESS;
             channel->busy = false;
             return false;
     }
 
     channel->busy = false;
-    printf("[Channel] XCHG complete.\n");
+    _log("[Channel] XCHG complete.\n");
     return true;
 }
 
 void printChannelState(const ChannelDevice *channel) {
     if (!channel) return;
-    printf("[Channel] ST=%d DT=%d SB=%d DB=%d COUNT=%d OFFSET=%d\n",
-           channel->ST, channel->DT, channel->SB, channel->DB,
-           channel->COUNT, channel->OFFSET);
+    char buf[128];
+    snprintf(buf, sizeof(buf),
+             "[Channel] ST=%d DT=%d SB=%d DB=%d COUNT=%d OFFSET=%d\n",
+             channel->ST, channel->DT, channel->SB, channel->DB,
+             channel->COUNT, channel->OFFSET);
+    _log(buf);
 }

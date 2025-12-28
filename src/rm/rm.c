@@ -23,7 +23,7 @@ bool initKernel(Memory* mem, CPU* cpu, HardDisk* hard) {
     initTimer(&systemTimer, TICK_LIMIT);
     IOinit();
 
-    printf("[RM] Kernel initialization complete.\n");
+    _log("[RM] Kernel initialization complete.\n");
     return true;
 }
 
@@ -43,16 +43,16 @@ void initRealMachine(void) {
 // VM startup
 // ───────────────────────────────
 void startVirtualMachine(void) {
-    printf("[RM] Starting Virtual Machine...\n");
+    _log("[RM] Starting Virtual Machine...\n");
 
     VirtualMachine* vm = createVM(&hardDisk, &physicalMemory);
     if (!vm) {
-        printf("[RM] VM initialization failed.\n");
+        _log("[RM] VM initialization failed.\n");
         return;
     }
 
     runVM(vm);
     destroyVM(vm);
 
-    printf("[RM] VM finished execution.\n");
+    _log("[RM] VM finished execution.\n");
 }

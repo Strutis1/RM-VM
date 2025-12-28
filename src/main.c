@@ -37,8 +37,11 @@ static void testCPUProgram(void) {
 
     execCycle();
 
-    printf("[RESULT] R0 = %u (expected 3)\n", realCPU.R[0]);
-    printf("[RESULT] R1 = %u (expected 2)\n", realCPU.R[1]);
+    char buf[80];
+    snprintf(buf, sizeof(buf), "[RESULT] R0 = %u (expected 3)\n", realCPU.R[0]);
+    _log(buf);
+    snprintf(buf, sizeof(buf), "[RESULT] R1 = %u (expected 2)\n", realCPU.R[1]);
+    _log(buf);
 }
 
 // interrupt test
@@ -56,7 +59,9 @@ static void testProgramInterrupt(void) {
 
     execCycle();
 
-    printf("[RESULT] PI = %u (expected %u)\n", realCPU.PI, PI_DIVZERO);
+    char buf[80];
+    snprintf(buf, sizeof(buf), "[RESULT] PI = %u (expected %u)\n", realCPU.PI, PI_DIVZERO);
+    _log(buf);
 }
 
 // MEM proc test
@@ -69,8 +74,10 @@ static void testMemoryProtection(void) {
     // Attempt supervisor memory access
     read(&physicalMemory, SUPERVISOR_MEMORY_START);
 
-    printf("[RESULT] PI = %u (expected %u)\n",
-           realCPU.PI, PI_INVALID_ADDRESS);
+    char buf[80];
+    snprintf(buf, sizeof(buf), "[RESULT] PI = %u (expected %u)\n",
+             realCPU.PI, PI_INVALID_ADDRESS);
+    _log(buf);
 }
 
 // Timer interrupt test
@@ -84,8 +91,10 @@ static void testTimerInterrupt(void) {
         raiseTimerInterrupt(TI_EXPIRED);
     }
 
-    printf("[RESULT] TI = %u (expected %u)\n",
-           realCPU.TI, TI_EXPIRED);
+    char buf[80];
+    snprintf(buf, sizeof(buf), "[RESULT] TI = %u (expected %u)\n",
+             realCPU.TI, TI_EXPIRED);
+    _log(buf);
 }
 
 int main(void) {

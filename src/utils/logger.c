@@ -80,11 +80,11 @@ static int read_name(char *dst) {
 }
 
 void generateConfig() {
-    printf("0) Write to stdout\n");
-    printf("1) Write to fptr\n");
-    printf("2) Write to default fptr\n");
-    printf("3) Write to default fptr and stdout\n");
-    printf("4) Write to custom fptr and stdout\n");
+    _log("0) Write to stdout\n");
+    _log("1) Write to fptr\n");
+    _log("2) Write to default fptr\n");
+    _log("3) Write to default fptr and stdout\n");
+    _log("4) Write to custom fptr and stdout\n");
     int ans = getchar();
     int c = getchar();
     (void)c;

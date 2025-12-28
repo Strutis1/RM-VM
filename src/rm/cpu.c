@@ -1,4 +1,5 @@
 #include "cpu.h"
+#include "../utils/utils.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -26,7 +27,9 @@ bool interrupted(){
 
 bool fetch(uint16_t *word) {
     *word = read(&physicalMemory, realCPU.IC);
-    printf("[DEBUG] Fetch @%u = 0x%04X\n", realCPU.IC, *word);
+    char buf[64];
+    snprintf(buf, sizeof(buf), "[DEBUG] Fetch @%u = 0x%04X\n", realCPU.IC, *word);
+    _log(buf);
     if (realCPU.PI != PI_NONE) return false;
     realCPU.IC++;
     return true;
@@ -266,27 +269,29 @@ void execute(Instruction inst) {
 //for testing
 int handleInterrupts(void) {
     if (realCPU.SI == SI_HALT) {
-        printf("[RM] HALT interrupt received. Stopping CPU.\n");
+        _log("[RM] HALT interrupt received. Stopping CPU.\n");
         return 0; // stop the main loop
     }
 
     if (realCPU.SI == SI_READ) {
-        printf("[RM] READ interrupt (unhandled for now).\n");
+        _log("[RM] READ interrupt (unhandled for now).\n");
         realCPU.SI = SI_NONE;
     }
 
     if (realCPU.SI == SI_WRITE) {
-        printf("[RM] WRITE interrupt (unhandled for now).\n");
+        _log("[RM] WRITE interrupt (unhandled for now).\n");
         realCPU.SI = SI_NONE;
     }
 
     if (realCPU.PI != PI_NONE) {
-        printf("[RM] Program interrupt (code %u)\n", realCPU.PI);
+        char buf[64];
+        snprintf(buf, sizeof(buf), "[RM] Program interrupt (code %u)\n", realCPU.PI);
+        _log(buf);
         realCPU.PI = PI_NONE;
     }
 
     if (realCPU.TI != TI_NONE) {
-        printf("[RM] Timer interrupt.\n");
+        _log("[RM] Timer interrupt.\n");
         realCPU.TI = TI_NONE;
     }
 
@@ -318,5 +323,3 @@ void execCycle() {
         running = handleInterrupts();
     }
 }
-
-
