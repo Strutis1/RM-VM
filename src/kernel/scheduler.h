@@ -27,6 +27,8 @@ how this could be done is by having an array of pointers, which would act as lab
 
 #pragma once
 
+#include "context_switcher.h"
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
@@ -52,6 +54,8 @@ typedef struct {
     const char* pname;
 
     unsigned char state; //small size, ergonomic and we only need a few states anyway
+    
+    CPUContext context;
 
     int (*fptr)(void); 
 } Process;
@@ -59,8 +63,9 @@ typedef struct {
 Process* initProcess(unsigned char pid, bool sysProc, const char* processName, int (*fptr)(void));
 
 typedef struct {
-    Process* selfProc;
     Process* schedule[SCHEDULER_MAX_PRIORITY];
+    Process* current; // Need for context switcher
+    Process* selfProc;
     unsigned short cycle;
     int prio_min, prio_max;
     unsigned char pid;
