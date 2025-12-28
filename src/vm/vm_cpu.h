@@ -1,5 +1,7 @@
 #pragma once
 
+typedef struct VirtualMachine VirtualMachine;
+
 /*
 typedef struct {
     uint16_t R[REG_COUNT];   
@@ -15,11 +17,6 @@ typedef struct {
 #include "../../include/instructions.h"
 #include "../../include/interrupts.h"
 #include "../../include/channel_device.h"
-// =======
-// #include "../../include/common.h"
-// #include "../../include/instructions.h"
-// #include "../../include/interrupts.h"
-// >>>>>>> 4104e68847041b9d8d6f1b8c3de28571f2adc05c
 #include "../../include/registers.h"
 #include <stdlib.h>
 #include <string.h>

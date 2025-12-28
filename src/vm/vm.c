@@ -50,9 +50,11 @@ VirtualMachine* createVM(HardDisk* disk, Memory* rmMemory) {
     VirtualMachine* vm = (VirtualMachine*)malloc(sizeof(VirtualMachine));
     if (!vm) return NULL;
 
-    vm->channel = initChannel();
+
     vm->memory  = VMinitMemory();
     vm->vm_cpu  = initVM_CPU();
+    VMinitChannel(&vm->channel);
+
     
     if (!vm->memory || !vm->vm_cpu) {
         printf("[VM] Memory or CPU initialization failed.\n");
@@ -70,7 +72,6 @@ VirtualMachine* createVM(HardDisk* disk, Memory* rmMemory) {
         return NULL;
     }
 
-    runOperations(vm);
     return vm;
 }
 
@@ -125,7 +126,7 @@ void loadDemoProgram(void) {
 
     uint8_t buffer[DISK_SECTOR_SIZE] = {0};
     memcpy(buffer, program, sizeof(program));
-    writeDisk(&hardDisk, 0, buffer);
+   // writeDisk(&hardDisk, 0, buffer); //I think this breaks something
 
     printf("[RM] Demo program written to disk sector 0.\n");
 }
