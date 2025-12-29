@@ -44,6 +44,7 @@ typedef struct VirtualMachine {
     Instruction* instructions; //for testing, but no purpose
     VM_MEMORY* memory;
     VM_CPU*    vm_cpu;
+    size_t memOffset;
     int (*fptr)(void);  
 } VirtualMachine;
 

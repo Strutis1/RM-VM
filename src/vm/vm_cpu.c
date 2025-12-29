@@ -14,7 +14,7 @@ VM_CPU* initVM_CPU() {
     return abc;
 }
 
-void runOperations(VirtualMachine* vm) {
+void runInstruction(VirtualMachine* vm) {
     if (!vm || !vm->memory || !vm->vm_cpu) {
         _log("[VM] Invalid VM state.\n");
         return;
@@ -24,12 +24,77 @@ void runOperations(VirtualMachine* vm) {
     VM_MEMORY* mem = vm->memory;
     uint16_t pc = cpu->PC;
 
+    if (pc + 1 >= VM_MEMORY_SIZE) {
+        _log("[VM] PC out of bounds.\n");
+        return;
+    }
+
+    _log("[VM] Beginning instruction execution...\n");
+
+    
+    // Fetch 16-bit instruction
+    uint16_t raw = (mem->memoryCells[pc] << 8) | mem->memoryCells[pc + 1];
+    cpu->PC = pc + 2; // advance for sequential execution
+
+    Instruction inst;
+    if (executeInstruction(&inst, raw) != 0) {
+        char buf[64];
+        snprintf(buf, sizeof(buf), "[VM] Invalid instruction: 0x%04X\n", raw);
+        _log(buf);
+        return;
+    }
+
+    char buf[64];
+    snprintf(buf, sizeof(buf), "[VM] Executing opcode %u at PC=%u\n", inst.opcode, pc);
+    _log(buf);
+
+    switch (inst.opcode) {
+        case OP_LOAD:
+            cpu->R[inst.regA] = inst.operand;
+            break;
+        
+        case OP_ADD:
+            cpu->R[inst.regA] += cpu->R[inst.regB];
+            break;
+
+        case OP_SUB:
+            cpu->R[inst.regA] -= cpu->R[inst.regB];
+            break;
+
+        case OP_HALT:
+            _log("[VM] HALT received.\n");
+            return;
+
+        default:
+            snprintf(buf, sizeof(buf), "[VM] Unimplemented opcode %u.\n", inst.opcode);
+            _log(buf);
+            break;
+    }
+    _log("[VM] Execution finished.\n");
+}
+
+
+void runOperations(VirtualMachine* vm) {
+    if (!vm || !vm->memory || !vm->vm_cpu) {
+        _log("[VM] Invalid VM state.\n");
+        return;
+    }
+
+    VM_CPU* cpu = vm->vm_cpu;
+    VM_MEMORY* mem = vm->memory;
+
     _log("[VM] Beginning instruction execution...\n");
 
     while (1) {
+        uint16_t pc = cpu->PC;
+        if (pc + 1 >= VM_MEMORY_SIZE) {
+            _log("[VM] PC out of bounds.\n");
+            break;
+        }
+
         // Fetch 16-bit instruction
         uint16_t raw = (mem->memoryCells[pc] << 8) | mem->memoryCells[pc + 1];
-        pc += 2;
+        cpu->PC = pc + 2; // advance for sequential execution
 
         Instruction inst;
         if (executeInstruction(&inst, raw) != 0) {

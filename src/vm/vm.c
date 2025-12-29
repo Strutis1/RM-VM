@@ -123,7 +123,7 @@ void runVM(VirtualMachine* vm) {
     }
 
     if (vm->fptr) custom_runVM(vm);
-    else runOperations(vm);
+    else runInstruction(vm);
 }
 
 void pseudo_runVM(VirtualMachine* vm) {
@@ -170,7 +170,7 @@ void custom_runVM(VirtualMachine* vm) {
 
     if (!vm->fptr) {
         _log("[VM] No custom entry point set; running interpreter instead.\n");
-        runOperations(vm);
+        runInstruction(vm);
         return;
     }
 
@@ -182,7 +182,7 @@ void custom_runVM(VirtualMachine* vm) {
     _log(buf);
 
     vm->vm_cpu->PC = 0;
-    runOperations(vm);
+    runInstruction(vm);
 }
 
 void loadDemoProgram(void) {
