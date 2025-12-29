@@ -1,11 +1,9 @@
 #include "scheduler.h"
+#include "context_switcher.h"
 #include <stdlib.h>
 #include <string.h>
 
-Process* initProcess(unsigned char pid,
-                     bool sysProc,
-                     const char* processName,
-                     VirtualMachine* vm) {
+Process* initProcess(unsigned char pid, bool sysProc, const char* processName, VirtualMachine* vm) {
     Process* tmp = (Process*)calloc(1, sizeof(Process));
     if (!tmp) return NULL;
 
@@ -118,34 +116,45 @@ bool removeProcN(Scheduler* sch, const char* procName) {
 }
 
 
-void templateCycle(Process* schedule[], int prio_min, int prio_max, int dispersion) {
-    int _dispersion = dispersion < 0 ? 0 : dispersion;
+void templateCycle(Scheduler* sch, int dispersion) {
+    if (!sch) return;
 
-    if (prio_min - _dispersion < 0) _dispersion = 0;
+    int window = dispersion < 0 ? 0 : dispersion;
+    int low = sch->prio_max - window;
+    if (low < sch->prio_min) low = sch->prio_min;
+    if (low < SCHEDULER_MIN_PRIORITY) low = SCHEDULER_MIN_PRIORITY;
 
-    for (int i = prio_max; i >= prio_min - _dispersion; --i) {
-        if (schedule[i] && schedule[i]->state == PROC_READY && schedule[i]->vm) {
-            schedule[i]->state = PROC_RUNNING;
-            runVM(schedule[i]->vm);
-            schedule[i]->state = PROC_READY;
-        }
+    for (int i = sch->prio_max; i >= low; --i) {
+        Process* next = sch->schedule[i];
+        if (!next || next->state != PROC_READY || !next->vm) continue;
+
+        if (sch->current && sch->current != next) saveContext(sch->current);
+
+        loadContext(next);
+        sch->current = next;
+
+        runVM(next->vm);
+
+        // For now return it to READY so it can be picked up in future cycles.
+        // A real VM HALT handler should mark it BLOCK or SUSP when done.
+        next->state = PROC_READY;
     }
 }
 
 
 void sysCycle(Scheduler* sch) {
     _log("[SCHEDULER] running system cycle\n");
-    templateCycle(sch->schedule, sch->prio_min, sch->prio_max, 0);
+    templateCycle(sch, 0);
 }
 
 void dispersedSysCycle(Scheduler* sch) {
     _log("[SCHEDULER] running dispersed system cycle\n");
-    templateCycle(sch->schedule,sch->prio_min,sch->prio_max,5);
+    templateCycle(sch, 2);
 }
 
 void fullCycle(Scheduler* sch) {
     _log("[SCHEDULER] running full cycle\n");
-    templateCycle(sch->schedule, sch->prio_min, sch->prio_max, 80);
+    templateCycle(sch, sch->prio_max - sch->prio_min);
 }
 
 void runCycle(Scheduler* sch) {

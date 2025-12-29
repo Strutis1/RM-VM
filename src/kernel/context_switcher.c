@@ -17,24 +17,6 @@ void loadContext(Process* proc) {
 }
 
 void contextSwitch(Scheduler* sch) {
-    if (!sch) return;
-
-    Process* prev = sch->current;
-    Process* next = NULL;
-
-    for (int i = sch->prio_max; i >= sch->prio_min; --i) {
-        if (sch->schedule[i] &&
-            sch->schedule[i]->state == PROC_READY &&
-            sch->schedule[i]->vm) {
-            next = sch->schedule[i];
-            break;
-        }
-    }
-
-    if (!next || next == prev) return;
-
-    if (prev) saveContext(prev);
-
-    loadContext(next);
-    sch->current = next;
+    // Reserved for more advanced switching; current templateCycle handles selection.
+    (void)sch;
 }
