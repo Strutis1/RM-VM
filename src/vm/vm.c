@@ -122,11 +122,8 @@ void runVM(VirtualMachine* vm) {
         return;
     }
 
-    if (vm->fptr) {
-        custom_runVM(vm);
-    } else {
-        runOperations(vm);
-    }
+    if (vm->fptr) custom_runVM(vm);
+    else runOperations(vm);
 }
 
 void pseudo_runVM(VirtualMachine* vm) {

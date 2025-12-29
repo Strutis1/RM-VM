@@ -104,9 +104,8 @@ bool removeProcN(Scheduler* sch, const char* procName) {
     if (!sch || !procName) return false;
 
     for (int i = SCHEDULER_MIN_PRIORITY; i < SCHEDULER_MAX_PRIORITY; ++i) {
-        if (sch->schedule[i] &&
-            strcmp(sch->schedule[i]->pname, procName) == 0)
-        {
+        if (sch->schedule[i] && strcmp(sch->schedule[i]->pname, procName) == 0) {
+            // free(sch->schedule[i]); // this probably stupid
             sch->schedule[i] = NULL;
             return true;
         }

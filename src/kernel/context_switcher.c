@@ -17,6 +17,6 @@ void loadContext(Process* proc) {
 }
 
 void contextSwitch(Scheduler* sch) {
-    // Reserved for more advanced switching; current templateCycle handles selection.
+    // Reserved for more advanced switching; current templateCycle handles selection
     (void)sch;
 }
