@@ -33,6 +33,7 @@ how this could be done is by having an array of pointers, which would act as lab
 #include <stdlib.h>
 #include "../../include/common.h"
 #include "../utils/utils.h"
+#include "../vm/vm.h" 
 
 #define SCHEDULER_MAX_PRIORITY 100
 #define SCHEDULER_MIN_PRIORITY 0
@@ -47,30 +48,16 @@ how this could be done is by having an array of pointers, which would act as lab
 
 
 typedef struct {
-    uint16_t IC;
-    uint16_t R[REG_COUNT];
-    uint16_t SF;
-    uint16_t PTR;
-    uint16_t MODE;
-    uint16_t PI;
-    uint16_t SI;
-    uint16_t TI;
-} CPUContext;
-
-
-typedef struct {
     unsigned char pid;
     bool sysProc; // would usually say that should use char but idfk
     const char* pname;
 
     unsigned char state; //small size, ergonomic and we only need a few states anyway
-    
-    CPUContext context;
 
-    int (*fptr)(void); 
+    VirtualMachine* vm; // VM instance backing this process
 } Process;
 
-Process* initProcess(unsigned char pid, bool sysProc, const char* processName, int (*fptr)(void));
+Process* initProcess(unsigned char pid, bool sysProc, const char* processName, VirtualMachine* vm);
 
 typedef struct {
     Process* schedule[SCHEDULER_MAX_PRIORITY];

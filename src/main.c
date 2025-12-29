@@ -106,6 +106,9 @@ int main(void) {
     // Clear CPU state before tests
     initCPU(&realCPU);
 
+    /*       -----------------------------------       */
+
+    // whoever wrote these test functions has the most friction up brains in the world, not smooth.
     testCPUProgram();
     testProgramInterrupt();
     testMemoryProtection();

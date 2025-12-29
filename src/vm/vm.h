@@ -44,12 +44,13 @@ typedef struct VirtualMachine {
     Instruction* instructions; //for testing, but no purpose
     VM_MEMORY* memory;
     VM_CPU*    vm_cpu;
+    int (*fptr)(void);  
 } VirtualMachine;
 
 VirtualMachine* createVM(HardDisk* disk, Memory* rmMemory);
 void destroyVM(VirtualMachine* vm);
 void runVM(VirtualMachine* vm);
+void custom_runVM(VirtualMachine* vm);
+void writeProcessMemory(uint8_t memOffset, const void* val, VM_MEMORY* mem);
+void* readProcessMemory(uint8_t cellOffset, const VM_MEMORY* mem);
 void loadDemoProgram(void);
-// =======
-// VirtualMachine* createVM(Channel* channel);
-// >>>>>>> 4104e68847041b9d8d6f1b8c3de28571f2adc05c

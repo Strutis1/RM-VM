@@ -117,6 +117,19 @@ void destroyVM(VirtualMachine* vm) {
 }
 
 void runVM(VirtualMachine* vm) {
+    if (!vm) {
+        _log("[VM] No VM instance provided.\n");
+        return;
+    }
+
+    if (vm->fptr) {
+        custom_runVM(vm);
+    } else {
+        runOperations(vm);
+    }
+}
+
+void pseudo_runVM(VirtualMachine* vm) {
     if (!vm || !vm->memory || !vm->vm_cpu) {
         _log("[VM] Invalid VM state.\n");
         return;
@@ -152,6 +165,29 @@ void runVM(VirtualMachine* vm) {
     _log("[VM] Execution complete.\n");
 }
 
+void custom_runVM(VirtualMachine* vm) {
+    if (!vm || !vm->memory || !vm->vm_cpu) {
+        _log("[VM] Invalid VM state.\n");
+        return;
+    }
+
+    if (!vm->fptr) {
+        _log("[VM] No custom entry point set; running interpreter instead.\n");
+        runOperations(vm);
+        return;
+    }
+
+    _log("[VM] Running custom program via fptr...\n");
+    int rc = vm->fptr();
+
+    char buf[96];
+    snprintf(buf, sizeof(buf), "[VM] Custom program finished with code %d\n", rc);
+    _log(buf);
+
+    vm->vm_cpu->PC = 0;
+    runOperations(vm);
+}
+
 void loadDemoProgram(void) {
     // Simple binary instruction stream for the VM
     uint16_t program[] = {
@@ -166,6 +202,22 @@ void loadDemoProgram(void) {
 
     _log("[RM] Demo program written to disk sector 0.\n");
 }
+
+//up to the user to interpret nulls
+void* readProcessMemory(uint8_t cellOffset, const VM_MEMORY* mem) {
+    if (!mem || cellOffset >= VM_MEMORY_SIZE) return NULL;
+    return (void*)(mem->memoryCells + cellOffset);
+}
+
+// tomorrow me issue
+void writeProcessMemory(uint8_t memOffset, const void* val, VM_MEMORY* mem) {
+    if (!mem || !val || memOffset >= VM_MEMORY_SIZE) return;
+    mem->memoryCells[memOffset] = *(const uint8_t*)val;
+}
+
+
+
+
 // =======
 // #include "vm.h"
 // #include <stdlib.h>

@@ -5,8 +5,7 @@
 Process* initProcess(unsigned char pid,
                      bool sysProc,
                      const char* processName,
-                     int (*fptr)(void))
-{
+                     VirtualMachine* vm) {
     Process* tmp = (Process*)calloc(1, sizeof(Process));
     if (!tmp) return NULL;
 
@@ -14,14 +13,13 @@ Process* initProcess(unsigned char pid,
     tmp->sysProc = sysProc;
     tmp->pname = processName;
     tmp->state = PROC_READY;
-    tmp->fptr = fptr;
+    tmp->vm = vm;
 
     return tmp;
 }
 
 
-Process** initSchedule(Process* sch[])
-{
+Process** initSchedule(Process* sch[]) {
     if (!sch) return NULL;
 
     for (int i = 0; i < SCHEDULER_MAX_PRIORITY; ++i)
@@ -30,8 +28,7 @@ Process** initSchedule(Process* sch[])
     return sch;
 }
 
-Scheduler* initScheduler()
-{
+Scheduler* initScheduler() {
     Process* selfProc = (Process*)calloc(1, sizeof(Process));
     if (!selfProc) return NULL;
 
@@ -39,7 +36,7 @@ Scheduler* initScheduler()
     selfProc->sysProc = true;
     selfProc->pname = "scheduler";
     selfProc->state = PROC_READY;
-    selfProc->fptr = NULL;
+    selfProc->vm = NULL;
 
     Scheduler* sched = (Scheduler*)calloc(1, sizeof(Scheduler));
     if (!sched) {
@@ -61,8 +58,7 @@ Scheduler* initScheduler()
 }
 
 
-bool addProc(Scheduler* sch, Process* proc)
-{
+bool addProc(Scheduler* sch, Process* proc) {
     if (!sch || !proc) return false;
 
     sch->pid++;
@@ -94,14 +90,11 @@ bool addProc(Scheduler* sch, Process* proc)
     return false;
 }
 
-bool removeProcP(Scheduler* sch, unsigned char _pid)
-{
+bool removeProcP(Scheduler* sch, unsigned char _pid) {
     if (!sch || _pid == 0) return false;
 
     for (int i = SCHEDULER_MIN_PRIORITY; i < SCHEDULER_MAX_PRIORITY; ++i) {
-        if (sch->schedule[i] &&
-            sch->schedule[i]->pid == _pid)
-        {
+        if (sch->schedule[i] && sch->schedule[i]->pid == _pid) {
             sch->schedule[i] = NULL;
             return true;
         }
@@ -109,8 +102,7 @@ bool removeProcP(Scheduler* sch, unsigned char _pid)
     return false;
 }
 
-bool removeProcN(Scheduler* sch, const char* procName)
-{
+bool removeProcN(Scheduler* sch, const char* procName) {
     if (!sch || !procName) return false;
 
     for (int i = SCHEDULER_MIN_PRIORITY; i < SCHEDULER_MAX_PRIORITY; ++i) {
@@ -126,56 +118,37 @@ bool removeProcN(Scheduler* sch, const char* procName)
 }
 
 
-void templateCycle(Process* schedule[],
-                   int prio_min,
-                   int prio_max,
-                   int dispersion)
-{
+void templateCycle(Process* schedule[], int prio_min, int prio_max, int dispersion) {
     int _dispersion = dispersion < 0 ? 0 : dispersion;
 
-    if (prio_min - _dispersion < 0)
-        _dispersion = 0;
+    if (prio_min - _dispersion < 0) _dispersion = 0;
 
     for (int i = prio_max; i >= prio_min - _dispersion; --i) {
-        if (schedule[i] &&
-            schedule[i]->state == PROC_READY &&
-            schedule[i]->fptr)
-        {
-            schedule[i]->fptr();
+        if (schedule[i] && schedule[i]->state == PROC_READY && schedule[i]->vm) {
+            schedule[i]->state = PROC_RUNNING;
+            runVM(schedule[i]->vm);
+            schedule[i]->state = PROC_READY;
         }
     }
 }
 
 
-void sysCycle(Scheduler* sch)
-{
+void sysCycle(Scheduler* sch) {
     _log("[SCHEDULER] running system cycle\n");
-    templateCycle(sch->schedule,
-                  sch->prio_min,
-                  sch->prio_max,
-                  0);
+    templateCycle(sch->schedule, sch->prio_min, sch->prio_max, 0);
 }
 
-void dispersedSysCycle(Scheduler* sch)
-{
+void dispersedSysCycle(Scheduler* sch) {
     _log("[SCHEDULER] running dispersed system cycle\n");
-    templateCycle(sch->schedule,
-                  sch->prio_min,
-                  sch->prio_max,
-                  5);
+    templateCycle(sch->schedule,sch->prio_min,sch->prio_max,5);
 }
 
-void fullCycle(Scheduler* sch)
-{
+void fullCycle(Scheduler* sch) {
     _log("[SCHEDULER] running full cycle\n");
-    templateCycle(sch->schedule,
-                  sch->prio_min,
-                  sch->prio_max,
-                  80);
+    templateCycle(sch->schedule, sch->prio_min, sch->prio_max, 80);
 }
 
-void runCycle(Scheduler* sch)
-{
+void runCycle(Scheduler* sch) {
     if (!sch) return;
 
     switch (sch->cycle) {
@@ -194,6 +167,5 @@ void runCycle(Scheduler* sch)
     }
 
     sch->cycle++;
-    if (sch->cycle > 2)
-        sch->cycle = 0;
+    if (sch->cycle > 2) sch->cycle = 0;
 }
