@@ -74,14 +74,17 @@ void runInstruction(VirtualMachine* vm) {
 }
 
 
-void runOperations(VirtualMachine* vm) {
+int runOperations(VirtualMachine* vm) {
     if (!vm || !vm->memory || !vm->vm_cpu) {
         _log("[VM] Invalid VM state.\n");
-        return;
+        return -1;
     }
 
     VM_CPU* cpu = vm->vm_cpu;
     VM_MEMORY* mem = vm->memory;
+
+    vm->trap_code = SI_NONE;
+    vm->trap_r0 = vm->trap_r1 = vm->trap_r2 = 0;
 
     _log("[VM] Beginning instruction execution...\n");
 
@@ -89,7 +92,7 @@ void runOperations(VirtualMachine* vm) {
         uint16_t pc = cpu->PC;
         if (pc + 1 >= VM_MEMORY_SIZE) {
             _log("[VM] PC out of bounds.\n");
-            break;
+            return -1;
         }
 
         // Fetch 16-bit instruction
@@ -101,7 +104,7 @@ void runOperations(VirtualMachine* vm) {
             char buf[64];
             snprintf(buf, sizeof(buf), "[VM] Invalid instruction: 0x%04X\n", raw);
             _log(buf);
-            break;
+            return -1;
         }
 
         char buf[64];
@@ -113,6 +116,36 @@ void runOperations(VirtualMachine* vm) {
                 cpu->R[inst.regA] = inst.operand;
                 break;
 
+            case OP_READ:
+                // Validate user buffer bounds before trapping to host
+                if ((uint32_t)cpu->R[1] + ((uint32_t)cpu->R[2] * 2) > VM_MEMORY_SIZE) {
+                    _log("[VM] READ out of bounds\n");
+                    return -1;
+                }
+                vm->trap_code = SI_READ;
+                vm->trap_r0 = cpu->R[0];
+                vm->trap_r1 = cpu->R[1];
+                vm->trap_r2 = cpu->R[2];
+                return 2; // trap to kernel
+
+            case OP_WRITE:
+                if ((uint32_t)cpu->R[1] + ((uint32_t)cpu->R[2] * 2) > VM_MEMORY_SIZE) {
+                    _log("[VM] WRITE out of bounds\n");
+                    return -1;
+                }
+                vm->trap_code = SI_WRITE;
+                vm->trap_r0 = cpu->R[0];
+                vm->trap_r1 = cpu->R[1];
+                vm->trap_r2 = cpu->R[2];
+                return 2; // trap to kernel
+
+            case OP_SYS:
+                vm->trap_code = SI_SYS;
+                vm->trap_r0 = cpu->R[0];
+                vm->trap_r1 = cpu->R[1];
+                vm->trap_r2 = cpu->R[2];
+                return 2; // generic system call trap
+
             case OP_ADD:
                 cpu->R[inst.regA] += cpu->R[inst.regB];
                 break;
@@ -123,14 +156,21 @@ void runOperations(VirtualMachine* vm) {
 
             case OP_HALT:
                 _log("[VM] HALT received.\n");
-                return;
+                {
+                    char summary[96];
+                    snprintf(summary, sizeof(summary), "[VM] Final regs: R0=%u R1=%u R2=%u PC=%u\n",
+                             cpu->R[0], cpu->R[1], cpu->R[2], cpu->PC);
+                    _log(summary);
+                }
+                return 1;
 
             default:
                 snprintf(buf, sizeof(buf), "[VM] Unimplemented opcode %u.\n", inst.opcode);
                 _log(buf);
-                break;
+                return -1;
         }
     }
 
     _log("[VM] Execution finished.\n");
+    return 0;
 }

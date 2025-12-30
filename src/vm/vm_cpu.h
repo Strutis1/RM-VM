@@ -26,5 +26,5 @@ struct VirtualMachine;
 //typedef struct VirtualMachine VirtualMachine;
 
 VM_CPU* initVM_CPU();
-void runOperations(VirtualMachine* vm);
+int runOperations(VirtualMachine* vm);
 void runInstruction(VirtualMachine* vm); // dont delete this, it will replace runOperations
