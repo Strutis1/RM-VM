@@ -18,3 +18,5 @@
 void initCPU(CPU *cpu);
 
 void execCycle();
+//test
+int execOneCycle();

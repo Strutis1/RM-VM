@@ -33,9 +33,9 @@ TARGET_APP      := $(BIN)/rmvm$(EXE_EXT)
 
 # ---------- OS-specific shims ----------
 ifeq ($(OS),Windows_NT)
-  MKDIR = powershell -NoProfile -Command "New-Item -ItemType Directory -Force" 
-  RMF   = powershell -NoProfile -Command "param([string[]]$$p) if($$p.Length){ Remove-Item -Force -ErrorAction SilentlyContinue $$p }" --
-  RMRF  = powershell -NoProfile -Command "param([string[]]$$p) if($$p.Length){ Remove-Item -Recurse -Force -ErrorAction SilentlyContinue $$p }" --
+  MKDIR = powershell -NoProfile -Command "New-Item -ItemType Directory -Force"
+  RMF   = powershell -NoProfile -Command "param([string[]]$$p) Remove-Item -Force -ErrorAction SilentlyContinue $$p" --
+  RMRF  = powershell -NoProfile -Command "param([string[]]$$p) Remove-Item -Recurse -Force -ErrorAction SilentlyContinue $$p" --
 else
   MKDIR = mkdir -p
   RMF   = rm -f

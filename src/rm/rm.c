@@ -45,7 +45,7 @@ void initRealMachine(void) {
 void startVirtualMachine(void) {
     _log("[RM] Starting Virtual Machine...\n");
 
-    VirtualMachine* vm = createVM(&hardDisk, &physicalMemory);
+    VirtualMachine* vm = createVM(&hardDisk, &physicalMemory, 1);
     if (!vm) {
         _log("[RM] VM initialization failed.\n");
         return;

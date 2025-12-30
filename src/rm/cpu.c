@@ -323,3 +323,18 @@ void execCycle() {
         running = handleInterrupts();
     }
 }
+
+
+//for testing
+//returns 1 if an instruction was executed, 0 if a fault/interrupt should stop the loop
+int execOneCycle(void) {
+    uint16_t raw;
+    if (!fetch(&raw)) return 0;
+
+    Instruction inst;
+    if (!decode(raw, &inst)) return 0;
+
+    execute(inst);
+    return 1;
+}
+
