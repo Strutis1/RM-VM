@@ -38,26 +38,76 @@ how this could be done is by having an array of pointers, which would act as lab
 #define SCHEDULER_MAX_PRIORITY 100
 #define SCHEDULER_MIN_PRIORITY 0
 
+// forward declarations for pointers
+struct Process;
+struct Scheduler;
+struct Kernel;
+typedef int (*ProcessEntry)(struct Process*, struct Scheduler*, struct Kernel*, uint16_t);
 
-// defining process states
-#define PROC_RUNNING 0
-#define PROC_BLOCK 1
-#define PROC_READY 2
-#define PROC_SUSP_BLOCK 3
-#define PROC_SUSP_READY 4
 
+// // defining process states
+// #define PROC_RUNNING 0
+// #define PROC_BLOCK 1
+// #define PROC_READY 2
+// #define PROC_SUSP_BLOCK 3
+// #define PROC_SUSP_READY 4
+
+
+typedef enum {
+    START_STOP,
+    IDLE,
+    JOB_GOVERNOR,
+    LOADER,
+    IO_HANDLER,
+    INTERRUPT_HANDLER
+} ProcType;
+
+typedef enum {
+    READY,
+    RUNNING,
+    BLOCKED,
+    SUSP_READY,
+    SUSP_BLOCKED
+} ProcState;
 
 typedef struct {
+    uint16_t IC;
+    uint16_t R[REG_COUNT];
+    uint16_t SF;
+    uint16_t MODE;
+    uint16_t PTR;
+    uint16_t PI;
+    uint16_t SI;
+    uint16_t TI;
+} CPUContext;
+
+typedef struct Process {
     unsigned char pid;
     bool sysProc; // would usually say that should use char but idfk
+    ProcType procType;
     const char* pname;
 
-    unsigned char state; //small size, ergonomic and we only need a few states anyway
+    ProcState state; //small size, ergonomic and we only need a few states anyway
+    CPUContext context;
 
     VirtualMachine* vm; // VM instance backing this process
+    ProcessEntry entry;
+    uint16_t fileId;
+    unsigned char parentPid; //for Loader->JobGovernor signaling
+    uint8_t loaded; //0 not requested, 2 loading, 1 loaded, 3 done
+    uint8_t waitingResId; // resource this process is waiting on (0 = none)
+    uint8_t swapped; // whether VM memory is swapped out
+    uint16_t swapSlot; // swap slot id (pid-based by default)
+
 } Process;
 
-Process* initProcess(unsigned char pid, bool sysProc, const char* processName, VirtualMachine* vm);
+Process* initProcess(unsigned char pid,
+                     bool sysProc,
+                     const char* processName,
+                     ProcType type,
+                     VirtualMachine* vm,
+                     ProcessEntry entry,
+                     uint16_t fileId);
 
 typedef struct {
     Process* schedule[SCHEDULER_MAX_PRIORITY];
@@ -68,7 +118,15 @@ typedef struct {
     unsigned char pid;
 } Scheduler;
 
+// toggle chatty scheduler logs
+extern bool schedulerVerbose;
+
 Process** initSchedule(Process* schedule[]);
 bool removeProcP(Scheduler* sch, unsigned char _pid);
 bool removeProcN(Scheduler* sch, const char* procName);
 Scheduler* initScheduler();
+void blockCurrent(Scheduler* sch);
+void unblockProcess(Scheduler* sch, unsigned char pid);
+bool addProc(Scheduler* sch, Process* proc);
+void runCycle(Scheduler* sch, struct Kernel* kernel);
+void schedulerSetVerbose(bool enabled);

@@ -1,17 +1,40 @@
 #include "scheduler.h"
 #include "context_switcher.h"
+#include "../../include/disk.h"
+#include "resourceManager.h"
+#include "swapper.h"
+#include "ioHandler.h"
+#include "kernel.h"
 #include <stdlib.h>
 #include <string.h>
 
-Process* initProcess(unsigned char pid, bool sysProc, const char* processName, VirtualMachine* vm) {
+// Global disk instance provided by RM init
+extern HardDisk hardDisk;
+
+bool schedulerVerbose = false;
+
+Process* initProcess(unsigned char pid,
+                     bool sysProc,
+                     const char* processName,
+                     ProcType type,
+                     VirtualMachine* vm,
+                     ProcessEntry entry,
+                     uint16_t fileId){
     Process* tmp = (Process*)calloc(1, sizeof(Process));
     if (!tmp) return NULL;
 
     tmp->pid = pid;
     tmp->sysProc = sysProc;
     tmp->pname = processName;
-    tmp->state = PROC_READY;
+    tmp->procType = type;
+    tmp->state = READY;
     tmp->vm = vm;
+    tmp->entry = entry;
+    tmp->fileId = fileId;
+    tmp->parentPid = 0;
+    tmp->loaded = 0;
+    tmp->swapped = 0;
+    tmp->swapSlot = pid;
 
     return tmp;
 }
@@ -33,7 +56,7 @@ Scheduler* initScheduler() {
     selfProc->pid = 97;
     selfProc->sysProc = true;
     selfProc->pname = "scheduler";
-    selfProc->state = PROC_READY;
+    selfProc->state = READY;
     selfProc->vm = NULL;
 
     Scheduler* sched = (Scheduler*)calloc(1, sizeof(Scheduler));
@@ -93,7 +116,15 @@ bool removeProcP(Scheduler* sch, unsigned char _pid) {
 
     for (int i = SCHEDULER_MIN_PRIORITY; i < SCHEDULER_MAX_PRIORITY; ++i) {
         if (sch->schedule[i] && sch->schedule[i]->pid == _pid) {
+            Process* doomed = sch->schedule[i];
             sch->schedule[i] = NULL;
+            if (doomed) {
+                if (doomed->vm) {
+                    destroyVM(doomed->vm);
+                    doomed->vm = NULL;
+                }
+                free(doomed);
+            }
             return true;
         }
     }
@@ -114,6 +145,22 @@ bool removeProcN(Scheduler* sch, const char* procName) {
     return false;
 }
 
+void blockCurrent(Scheduler* sch) {
+    if (!sch || !sch->current) return;
+    sch->current->state = BLOCKED;
+    sch->current = NULL;
+}
+
+void unblockProcess(Scheduler* sch, unsigned char pid) {
+    if (!sch) return;
+    for (int i = SCHEDULER_MIN_PRIORITY; i < SCHEDULER_MAX_PRIORITY; ++i) {
+        if (sch->schedule[i] && sch->schedule[i]->pid == pid) {
+            sch->schedule[i]->state = READY;
+            return;
+        }
+    }
+}
+
 
 void templateCycle(Scheduler* sch, int dispersion) {
     if (!sch) return;
@@ -125,55 +172,181 @@ void templateCycle(Scheduler* sch, int dispersion) {
 
     for (int i = sch->prio_max; i >= low; --i) {
         Process* next = sch->schedule[i];
-        if (!next || next->state != PROC_READY || !next->vm) continue;
+        if (!next || next->state != READY) continue;
 
         if (sch->current && sch->current != next) saveContext(sch->current);
 
-        loadContext(next);
         sch->current = next;
 
-        runVM(next->vm);
+        if (next->entry) {
+            int rc = next->entry(next, (struct Scheduler*)sch, (struct Kernel*)NULL, next->fileId);
+            if (rc == 0) {
+                removeProcP(sch, next->pid);
+                sch->current = NULL;
+                continue;
+            } else if (rc < 0) {
+                requestResource(&resourceManager, 1, next);
+                sch->current = NULL;
+                continue;
+            } else {
+                next->state = READY;
+                sch->current = NULL;
+                continue;
+            }
+        }
 
-        // For now return it to READY so it can be picked up in future cycles.
-        // A real VM HALT handler should mark it BLOCK or SUSP when done.
-        next->state = PROC_READY;
+        if (next->vm) {
+            loadContext(next);
+            int vm_status = runOperations(next->vm);
+
+            if (vm_status == 1) {
+                removeProcP(sch, next->pid);
+                sch->current = NULL;
+            } else if (vm_status == 2) {
+                if (!requestResource(&resourceManager, 1, next)) {
+                    next->state = BLOCKED;
+                }
+                sch->current = NULL;
+            } else if (vm_status < 0) {
+                removeProcP(sch, next->pid);
+                sch->current = NULL;
+            } else {
+                next->state = READY;
+            }
+        }
     }
 }
 
 
 void sysCycle(Scheduler* sch) {
-    _log("[SCHEDULER] running system cycle\n");
-    templateCycle(sch, 0);
+    if (schedulerVerbose) _log("[SCHEDULER] running system cycle\n");
+    templateCycle(sch, 20);
 }
 
 void dispersedSysCycle(Scheduler* sch) {
-    _log("[SCHEDULER] running dispersed system cycle\n");
+    if (schedulerVerbose) _log("[SCHEDULER] running dispersed system cycle\n");
     templateCycle(sch, 2);
 }
 
 void fullCycle(Scheduler* sch) {
-    _log("[SCHEDULER] running full cycle\n");
+    if (schedulerVerbose) _log("[SCHEDULER] running full cycle\n");
     templateCycle(sch, sch->prio_max - sch->prio_min);
 }
 
-void runCycle(Scheduler* sch) {
+// Run a fixed priority range [hi..lo] inclusive
+static void runRange(Scheduler* sch, struct Kernel* kernel, int hi, int lo) {
     if (!sch) return;
+    if (hi >= SCHEDULER_MAX_PRIORITY) hi = SCHEDULER_MAX_PRIORITY - 1;
+    if (lo < SCHEDULER_MIN_PRIORITY) lo = SCHEDULER_MIN_PRIORITY;
 
-    switch (sch->cycle) {
-        case 0:
-            sysCycle(sch);
-            break;
-        case 1:
-            dispersedSysCycle(sch);
-            break;
-        case 2:
-            fullCycle(sch);
-            break;
-        default:
-            sch->cycle = 0;
-            return;
+    for (int i = hi; i >= lo; --i) {
+        Process* next = sch->schedule[i];
+        if (!next || next->state != READY) continue;
+
+        if (sch->current && sch->current != next) saveContext(sch->current);
+
+        sch->current = next;
+        if (kernel) kernel->current = next;
+        if (kernel && next->vm) {
+            kernel->lastVM = next;
+            kernel->lastTrapPid = next->pid;
+        }
+
+        // CPU resource arbitration
+        if (!requestResource(&resourceManager, 3, next)) {
+            next->state = BLOCKED;
+            sch->current = NULL;
+            if (kernel && kernel->current == next) kernel->current = NULL;
+            continue;
+        }
+
+        if (next->entry) {
+            int rc = next->entry(next, (struct Scheduler*)sch, kernel, next->fileId);
+            if (rc == 0) {
+                removeProcP(sch, next->pid);
+                sch->current = NULL;
+                releaseResource(&resourceManager, 3, sch);
+                if (kernel && kernel->current == next) kernel->current = NULL;
+                continue;
+            } else if (rc < 0) {
+                next->state = BLOCKED;
+                sch->current = NULL;
+                releaseResource(&resourceManager, 3, sch);
+                if (kernel && kernel->current == next) kernel->current = NULL;
+                continue;
+            } else {
+                next->state = READY;
+                sch->current = NULL;
+                releaseResource(&resourceManager, 3, sch);
+                if (kernel && kernel->current == next) kernel->current = NULL;
+                continue;
+            }
+        }
+
+        if (next->vm) {
+            loadContext(next);
+            // Memory resource for VM execution
+            if (!requestResource(&resourceManager, 2, next)) {
+                next->state = BLOCKED;
+                sch->current = NULL;
+                releaseResource(&resourceManager, 3, sch);
+                if (kernel && kernel->current == next) kernel->current = NULL;
+                continue;
+            }
+            // If swapped out, bring back in
+            if (next->swapped) {
+                if (!swapInVM(&hardDisk, next->vm, next->swapSlot)) {
+                    _log("[SWAP] Failed to swap in VM\n");
+                    next->state = SUSP_BLOCKED;
+                    releaseResource(&resourceManager, 2, sch);
+                    releaseResource(&resourceManager, 3, sch);
+                    if (kernel && kernel->current == next) kernel->current = NULL;
+                    continue;
+                }
+                next->swapped = 0;
+                _log("[SWAP] VM swapped in\n");
+            }
+            int vm_status = runOperations(next->vm);
+            if (kernel) kernel->lastTrapPid = next->pid;
+
+            if (vm_status == 1) {
+                removeProcP(sch, next->pid);
+                sch->current = NULL;
+            } else if (vm_status == 2) {
+                enqueueIORequest(next, next->vm->trap_code, next->vm->trap_r0, next->vm->trap_r1, next->vm->trap_r2);
+                // swap out while waiting on I/O
+                if (!next->swapped) {
+                    if (swapOutVM(&hardDisk, next->vm, next->swapSlot)) {
+                        next->swapped = 1;
+                        _log("[SWAP] VM swapped out during I/O wait\n");
+                    }
+                }
+                next->state = SUSP_BLOCKED;
+                sch->current = NULL;
+            } else if (vm_status < 0) {
+                removeProcP(sch, next->pid);
+                sch->current = NULL;
+            } else {
+                next->state = READY;
+            }
+            releaseResource(&resourceManager, 2, sch);
+        }
+
+        releaseResource(&resourceManager, 3, sch);
+        if (kernel && kernel->current == next) kernel->current = NULL;
     }
+}
 
+void runCycle(Scheduler* sch, struct Kernel* kernel) {
+    if (!sch) return;
+    // System pass: top 20 priorities (99..80)
+    runRange(sch, kernel, 99, 80);
+    // User pass: remaining priorities (79..0)
+    runRange(sch, kernel, 79, 0);
     sch->cycle++;
     if (sch->cycle > 2) sch->cycle = 0;
+}
+
+void schedulerSetVerbose(bool enabled) {
+    schedulerVerbose = enabled;
 }
