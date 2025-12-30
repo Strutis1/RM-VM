@@ -5,7 +5,7 @@
 #include "../vm/vm.h"
 
 
-#define SWAP_START_SECTOR 100
+#define SWAP_START_SECTOR 80
 #define SWAP_SLOT_SIZE_SECTORS 16 // 16 * 16B = 256B (covers VM_MEMORY_SIZE bytes)
 
 static inline uint16_t swapSlotStart(uint16_t slot) {

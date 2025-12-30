@@ -184,7 +184,10 @@ static int startStopEntry(Process* proc, Scheduler* scheduler, Kernel* kernel, u
     for (int p = SCHEDULER_MIN_PRIORITY; p < SCHEDULER_MAX_PRIORITY; ++p) {
         Process* pr = scheduler->schedule[p];
         if (!pr) continue;
-        if (pr->procType == IDLE || pr->procType == START_STOP) continue;
+        // ignore core daemons when checking if user work remains
+        if (pr->procType == IDLE || pr->procType == START_STOP ||
+            pr->procType == INTERRUPT_HANDLER || pr->procType == IO_HANDLER ||
+            pr->procType == LOADER) continue;
         if (pr->state == READY || pr->state == BLOCKED) { hasWork = true; break; }
     }
     if (hasWork) return 1;
@@ -318,6 +321,8 @@ int main(void) {
         }
         if (!hasWork) break;
     }
+    // Give Start-Stop a chance to log shutdown if it's still present
+    runCycle(scheduler, &kernel);
     _log("[MAIN] OS boot stub finished\n");
 
     getchar();
