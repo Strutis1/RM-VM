@@ -38,6 +38,7 @@
 #include "vm_channel.h"
 #include "vm_program.h"
 #include "../utils/utils.h"
+#include "../kernel/loader.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -65,7 +66,7 @@ static size_t loadDiskProgram(HardDisk* disk, VM_MEMORY* mem, uint16_t startSect
     return offset;
 }
 
-VirtualMachine* createVM(HardDisk* disk, Memory* rmMemory) {
+VirtualMachine* createVM(HardDisk* disk, Memory* rmMemory, uint16_t fileId) {
     if (!disk || !rmMemory) {
         _log("[VM] Invalid disk or RM memory pointer.\n");
         return NULL;
@@ -88,20 +89,16 @@ VirtualMachine* createVM(HardDisk* disk, Memory* rmMemory) {
         return NULL;
     }
 
-    _log("[VM] Loading program from disk into VM memory...\n");
-
-    size_t loaded = loadDiskProgram(disk, vm->memory, 0);
-    if (loaded == 0) {
-        _log("[VM] Failed to load any bytes from disk.\n");
-        destroyVM(vm);
-        return NULL;
-    }
-
     vm->vm_cpu->PC = 0;
 
-    char buf[64];
-    snprintf(buf, sizeof(buf), "[VM] Loaded %zu bytes into VM memory.\n", loaded);
-    _log(buf);
+    if (fileId != 0) {
+        _log("[VM] Loading program from disk into VM memory...\n");
+        if (!loaderLoadFile(disk, vm, fileId, NULL, 0)) {
+            _log("[VM] Failed to load any bytes from file.\n");
+            destroyVM(vm);
+            return NULL;
+        }
+    }
 
     return vm;
 }

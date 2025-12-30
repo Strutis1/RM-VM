@@ -46,11 +46,18 @@ typedef struct VirtualMachine {
     VM_CPU*    vm_cpu;
     size_t memOffset;
     int (*fptr)(void);  
+
+    // Trap info for simulated system calls (set by runOperations)
+    uint16_t trap_code;   // SI_READ / SI_WRITE / SI_SYS
+    uint16_t trap_r0;     // sector or value
+    uint16_t trap_r1;     // memory offset
+    uint16_t trap_r2;     // count/length
 } VirtualMachine;
 
-VirtualMachine* createVM(HardDisk* disk, Memory* rmMemory);
+VirtualMachine* createVM(HardDisk* disk, Memory* rmMemory, uint16_t fileId);
 void destroyVM(VirtualMachine* vm);
 void runVM(VirtualMachine* vm);
+int runOperations(VirtualMachine* vm);
 void custom_runVM(VirtualMachine* vm);
 void writeProcessMemory(uint8_t memOffset, const void* val, VM_MEMORY* mem);
 void* readProcessMemory(uint8_t cellOffset, const VM_MEMORY* mem);

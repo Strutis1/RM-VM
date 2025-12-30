@@ -7,10 +7,15 @@
 #include "../../include/disk.h"
 #include "../../include/common.h"
 
+#include "../kernel/scheduler.h"
+#include "kernel.h"
+#include "../vm/vm.h"
+
 // Program image header stored at the beginning of the first sector.
 typedef struct {
-    uint16_t wordCount;   // total 16-bit words in the image (excluding header)
-    uint16_t entryOffset; // offset (in words) from loadAddress to the entry point
+    uint16_t wordCount;    // total 16-bit words in the image (excluding header)
+    uint16_t entryOffset;  // offset (in words) from loadAddress to the entry point
+    uint16_t loadAddress;  // base address in VM user memory where code will be placed
 } ProgramHeader;
 
 typedef struct {
@@ -27,3 +32,25 @@ typedef struct {
 // Returns true on success and optionally fills LoadResult. On success, cpu->IC
 // is set to the computed entry point (loadAddress + entryOffset).
 bool loadProgramImage(HardDisk *disk, Memory *mem, CPU *cpu, uint16_t startSector, uint16_t loadAddress, LoadResult *out);
+
+//file table for mapping FileID -> disk sectors.
+#define MAX_FILE_ENTRIES 8
+typedef struct {
+    uint16_t fileId;
+    uint16_t startSector;
+    uint16_t sectorCount;
+} FileEntry;
+
+void initFileTable(void);
+bool registerFile(uint16_t fileId, uint16_t startSector, uint16_t sectorCount);
+bool findFile(uint16_t fileId, FileEntry *out);
+
+//Read a file by FileID into a caller-provided buffer
+//Returns true on success and fills outBytes with bytes copied
+bool readFileToBuffer(HardDisk *disk, uint16_t fileId, uint8_t *dst, size_t maxBytes, size_t *outBytes);
+
+//Loader routine: load a FileID into a VM's memory and unblock waiting
+bool loaderLoadFile(HardDisk *disk, VirtualMachine *vm, uint16_t fileId, Scheduler *sch, unsigned char waiterPid);
+
+// Loader process entry (for Scheduler-managed processes)
+int loaderEntry(Process* proc, Scheduler* scheduler, Kernel* kernel, uint16_t fileId);
