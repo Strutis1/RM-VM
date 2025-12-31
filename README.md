@@ -1,12 +1,12 @@
-# RM-VM
+# Operating System Project
 
-Minimal “real machine” and a matching virtual machine implemented in C. The project includes source, headers, an `asm/` directory, a `bin/` output directory, and a small test suite. It’s set up with a `Makefile`. 
+A minimal Operating System project implemented in C. This repository contains the OS kernel, device drivers, utilities, source, headers, an `asm/` directory, a `bin/` output directory, and a small test suite. The project is set up with a `Makefile`.
 
 ---
 
 ## Overview
 
-This repository models a simple hardware-like **Real Machine (RM)** and a software **Virtual Machine (VM)** that executes the same instruction set. The VM emulates the RM’s behavior for easier debugging and experimentation, while the RM version represents the “bare-metal” implementation path. Folder layout and languages are visible in the repo tree. 
+This project models a simple operating system environment, suitable for learning and experimentation. It includes components for running programs, managing resources, and handling basic input/output. The structure allows easy extension and testing of OS concepts.
 
 ---
 
@@ -17,13 +17,9 @@ asm/       ; assembly or bytecode/program inputs for the machines
 bin/       ; build artifacts (executables, images)
 include/   ; public headers
 src/       ; C sources
-rm_test/   ; sample programs / fixtures / scripts
+rm_test/   ; sample programs / fixtures / scripts / kernel implementation
 Makefile   ; build targets
 ```
-
-Folder names and presence are taken from the repository browser. 
-
----
 
 ## Prerequisites
 
@@ -49,18 +45,11 @@ make debug
 
 (Exact target names depend on the `Makefile` in this repo.) 
 
-## Instruction set & I/O
+## Features
 
-Document here:
-
-* Word size, endianness
-* Register file (names, sizes, caller/callee convention if any)
-* Condition codes / flags
-* Supported addressing modes
-* Syscalls / memory-mapped I/O
-* Trap/interrupt behavior
-* Program image format (loader expectations)
-
+- Basic OS functionality for running programs
+- Sample programs demonstrating OS interactions
+- Low-level routines for initialization and I/O
 ---
 
 ## Development

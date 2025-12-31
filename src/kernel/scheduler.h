@@ -34,6 +34,7 @@ how this could be done is by having an array of pointers, which would act as lab
 #include "../../include/common.h"
 #include "../utils/utils.h"
 #include "../vm/vm.h" 
+#include "../vm/vm_cpu.h"
 
 #define SCHEDULER_MAX_PRIORITY 100
 #define SCHEDULER_MIN_PRIORITY 0
