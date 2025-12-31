@@ -313,13 +313,21 @@ static void runRange(Scheduler* sch, struct Kernel* kernel, int hi, int lo) {
                 removeProcP(sch, next->pid);
                 sch->current = NULL;
             } else if (vm_status == 2) {
-                enqueueIORequest(next, next->vm->trap_code, next->vm->trap_r0, next->vm->trap_r1, next->vm->trap_r2);
-                // swap out while waiting on I/O
-                if (!next->swapped) {
-                    if (swapOutVM(&hardDisk, next->vm, next->swapSlot)) {
-                        next->swapped = 1;
-                        _log("[SWAP] VM swapped out during I/O wait\n");
+                bool queued = enqueueIORequest(next,
+                                               next->vm->trap_code,
+                                               next->vm->trap_r0,
+                                               next->vm->trap_r1,
+                                               next->vm->trap_r2);
+                if (queued) {
+                    // swap out while waiting on I/O
+                    if (!next->swapped) {
+                        if (swapOutVM(&hardDisk, next->vm, next->swapSlot)) {
+                            next->swapped = 1;
+                            _log("[SWAP] VM swapped out during I/O wait\n");
+                        }
                     }
+                } else {
+                    _log("[SCHEDULER] I/O enqueue failed; will retry when process is rescheduled\n");
                 }
                 next->state = SUSP_BLOCKED;
                 sch->current = NULL;

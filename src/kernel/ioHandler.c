@@ -3,12 +3,14 @@
 #include "../utils/utils.h"
 #include "../../include/disk.h"
 #include "../vm/vm.h"
+#include <stdbool.h>
 
 typedef struct {
     Process* proc;
     uint16_t code;
     uint16_t r0, r1, r2;
     int ticks;
+    bool holdsRes;
 } IORequest;
 
 static IORequest pendingIO[8] = {0};
@@ -50,7 +52,10 @@ static void completeIO(IORequest* req, Scheduler* scheduler) {
             break;
     }
 
-    releaseResource(&resourceManager, 1, scheduler);
+    if (req->holdsRes) {
+        releaseResource(&resourceManager, 1, scheduler);
+        req->holdsRes = false;
+    }
     req->proc->state = READY;
     req->proc->waitingResId = 0;
     req->proc = NULL;
@@ -59,14 +64,25 @@ static void completeIO(IORequest* req, Scheduler* scheduler) {
 
 bool enqueueIORequest(Process* proc, uint16_t code, uint16_t r0, uint16_t r1, uint16_t r2) {
     if (!proc) return false;
+
+    // Claim IO resource (id=1) before enqueuing; if unavailable, the caller should retry later.
+    if (!requestResource(&resourceManager, 1, proc)) {
+        return false;
+    }
+
     int next = (ioTail + 1) % 8;
-    if (next == ioHead) return false; // full
+    if (next == ioHead) {
+        // queue full: release the resource and fail
+        releaseResource(&resourceManager, 1, NULL);
+        return false;
+    }
     pendingIO[ioTail].proc = proc;
     pendingIO[ioTail].code = code;
     pendingIO[ioTail].r0 = r0;
     pendingIO[ioTail].r1 = r1;
     pendingIO[ioTail].r2 = r2;
     pendingIO[ioTail].ticks = 1;
+    pendingIO[ioTail].holdsRes = true;
     ioTail = next;
     proc->state = BLOCKED;
     proc->waitingResId = 1;

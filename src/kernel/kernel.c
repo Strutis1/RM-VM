@@ -3,6 +3,8 @@
 #include "../../include/interrupts.h"
 #include "context_switcher.h"
 #include "resourceManager.h"
+#include "ioHandler.h"
+#include "interruptHandler.h"
 #include <stdbool.h>
 
 
@@ -67,23 +69,21 @@ int kernelHandleInterrupts(Kernel* k) {
             if (canBlock && sch) blockCurrent(sch);
             return 0;
         case SI_READ:
-            _log("[KERNEL] READ interrupt acknowledged (not yet handled).\n");
-            k->lastSI = cpu->SI;
-            cpu->SI = SI_NONE;
-            if (canBlock && sch) blockCurrent(sch);
-            return 1;
         case SI_WRITE:
-            _log("[KERNEL] WRITE interrupt acknowledged (not yet handled).\n");
-            k->lastSI = cpu->SI;
+        case SI_SYS: {
+            uint16_t code = cpu->SI;
+            k->lastSI = code;
             cpu->SI = SI_NONE;
-            if (canBlock && sch) blockCurrent(sch);
+            if (sch && cur) {
+                bool queued = enqueueIORequest(cur, code, cpu->R[0], cpu->R[1], cpu->R[2]);
+                if (!queued) {
+                    _log("[KERNEL] I/O request could not be enqueued (resource busy or queue full).\n");
+                }
+                if (canBlock && cur->state != SUSP_BLOCKED) blockCurrent(sch);
+                wakeProcessByType(sch, IO_HANDLER);
+            }
             return 1;
-        case SI_SYS:
-            _log("[KERNEL] SYS interrupt acknowledged (not yet handled).\n");
-            k->lastSI = cpu->SI;
-            cpu->SI = SI_NONE;
-            if (canBlock && sch) blockCurrent(sch);
-            return 1;
+        }
         case SI_NONE:
             k->lastSI = SI_NONE;
             break;

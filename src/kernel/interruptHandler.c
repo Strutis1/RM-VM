@@ -3,7 +3,7 @@
 #include "resourceManager.h"
 
 // Wake the first process of a given type
-static void wakeProcessByType(Scheduler* scheduler, ProcType type) {
+void wakeProcessByType(Scheduler* scheduler, ProcType type) {
     if (!scheduler) return;
     for (int i = SCHEDULER_MIN_PRIORITY; i < SCHEDULER_MAX_PRIORITY; ++i) {
         Process* p = scheduler->schedule[i];
@@ -32,23 +32,18 @@ int interruptHandlerEntry(Process* proc, Scheduler* scheduler, Kernel* kernel, u
     // Grab timer resource (id=4) while we poke at interrupts
     bool tmrHeld = requestResource(&resourceManager, 4, scheduler ? scheduler->current : NULL);
 
+    kernelHandleInterrupts(kernel);
+
+    // Snapshot current interrupt causes (from kernel bookkeeping, set during handle)
+    uint16_t pi = kernel->lastPI;
+    uint16_t si = kernel->lastSI;
+    uint16_t ti = kernel->lastTI;
+
     // Try to tie interrupts to the last VM that ran
     Process* vmOwner = kernel->lastVM;
     if (!vmOwner && kernel->lastTrapPid) {
         vmOwner = findProcessByPid(scheduler, (unsigned char)kernel->lastTrapPid);
     }
-
-    // Snapshot current interrupt causes (from kernel bookkeeping)
-    uint16_t pi = kernel->lastPI;
-    uint16_t si = kernel->lastSI;
-    uint16_t ti = kernel->lastTI;
-
-    kernelHandleInterrupts(kernel);
-
-    // Clear latched values after handling
-    kernel->lastPI = 0;
-    kernel->lastSI = 0;
-    kernel->lastTI = 0;
 
     // Quick reactions:
     if (si == SI_READ || si == SI_WRITE) {
@@ -86,6 +81,11 @@ int interruptHandlerEntry(Process* proc, Scheduler* scheduler, Kernel* kernel, u
     if (ti == TI_EXPIRED && scheduler) {
         // preemption already requested; nothing else for now
     }
+
+    // Clear latched values after handling
+    kernel->lastPI = 0;
+    kernel->lastSI = 0;
+    kernel->lastTI = 0;
 
     if (tmrHeld) {
         releaseResource(&resourceManager, 4, scheduler);
